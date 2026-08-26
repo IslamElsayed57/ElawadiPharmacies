@@ -867,10 +867,8 @@ async function handleMedicineOrderSubmit(event) {
                 notes: notes,
                 status: "new",
                 tracking_code: trackingCode
-            })
-            .select()
-            .single();
-
+            });
+            
         // Check for database error
         if (error) {
             console.error("Supabase order error:", error);
