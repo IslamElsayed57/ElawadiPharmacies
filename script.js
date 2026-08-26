@@ -353,6 +353,8 @@ let state = {
 // 3. App Initialization
 // --------------------------------------------------------------------------
 document.addEventListener("DOMContentLoaded", () => {
+    setupThemeToggle();
+
     // Initial products render
     renderProductsCatalog();
 
@@ -368,6 +370,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // Setup global search live listener
     setupGlobalSearchListeners();
 });
+
+// --------------------------------------------------------------------------
+// 3.1 Theme (light / dark mode)
+// --------------------------------------------------------------------------
+function setupThemeToggle() {
+    const savedTheme = localStorage.getItem("elawadi-theme");
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark));
+}
+
+function toggleTheme() {
+    const isDark = !document.body.classList.contains("dark-mode");
+    applyTheme(isDark);
+    localStorage.setItem("elawadi-theme", isDark ? "dark" : "light");
+}
+
+function applyTheme(isDark) {
+    const toggle = document.getElementById("themeToggle");
+    document.body.classList.toggle("dark-mode", isDark);
+
+    if (!toggle) return;
+
+    toggle.setAttribute("aria-pressed", String(isDark));
+    toggle.setAttribute("aria-label", isDark ? "تفعيل الوضع النهاري" : "تفعيل الوضع الليلي");
+    toggle.innerHTML = isDark
+        ? '<i class="fa-solid fa-sun" aria-hidden="true"></i><span>الوضع النهاري</span>'
+        : '<i class="fa-solid fa-moon" aria-hidden="true"></i><span>الوضع الليلي</span>';
+}
 
 // --------------------------------------------------------------------------
 // 4. Navigation & Section Switching

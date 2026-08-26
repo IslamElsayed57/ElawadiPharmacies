@@ -731,19 +731,211 @@ h1, h2, h3, h4, h5, h6 {
     color: #1E293B;
 }
 
-.call-btn-nav {
+.theme-toggle {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    background-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.16);
     color: #FFFFFF;
     padding: 0.45rem 1rem;
     border-radius: var(--radius-pill);
     font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid rgba(255, 255, 255, 0.22);
 }
 
-.call-btn-nav:hover {
+.theme-toggle:hover {
     background-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+.theme-toggle i {
+    width: 1rem;
+    text-align: center;
+}
+
+/* الوضع الليلي: نغيّر المتغيرات أولاً حتى تستخدمها جميع الأقسام تلقائياً،
+   ثم نعدّل العناصر ذات الخلفيات والألوان الثابتة. */
+body.dark-mode {
+    --primary: #23B987;
+    --primary-dark: #7DE4C0;
+    --primary-light: #153E35;
+    --primary-hover: #42D5A4;
+    --text-main: #E8F1EE;
+    --text-muted: #B5C7C1;
+    --text-light: #8EA49D;
+    --bg-body: #101A1A;
+    --bg-surface: #162323;
+    --bg-alt: #213131;
+    --border-color: #314743;
+    --border-focus: #42D5A4;
+    background-color: var(--bg-body);
+    color: var(--text-main);
+}
+
+body.dark-mode .main-header,
+body.dark-mode .stats-section,
+body.dark-mode .hero-card-visual,
+body.dark-mode .floating-promo-card,
+body.dark-mode .contribution-card,
+body.dark-mode .category-card,
+body.dark-mode .product-card,
+body.dark-mode .medicine-booking-card,
+body.dark-mode .c-type-card,
+body.dark-mode .mode-tab-btn,
+body.dark-mode .doctor-card,
+body.dark-mode .clinic-form-card,
+body.dark-mode .consultation-form-card,
+body.dark-mode .about-text-card,
+body.dark-mode .about-pillars-card,
+body.dark-mode .value-item,
+body.dark-mode .founder-card,
+body.dark-mode .ach-badge,
+body.dark-mode .contact-card,
+body.dark-mode .branches-container,
+body.dark-mode .contact-form-box,
+body.dark-mode .map-simulation-card,
+body.dark-mode .modal-dialog,
+body.dark-mode .search-results-dropdown {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .hero-section {
+    background: linear-gradient(135deg, #102A27 0%, #142B2A 50%, #182738 100%);
+}
+
+body.dark-mode h1,
+body.dark-mode h2,
+body.dark-mode h3,
+body.dark-mode h4,
+body.dark-mode h5,
+body.dark-mode h6,
+body.dark-mode .logo-title,
+body.dark-mode .stat-num,
+body.dark-mode .product-name,
+body.dark-mode .search-item-title {
+    color: var(--text-main);
+}
+
+body.dark-mode .hero-desc,
+body.dark-mode .section-lead,
+body.dark-mode .stat-label,
+body.dark-mode .logo-subtitle,
+body.dark-mode .product-en-name,
+body.dark-mode .search-item-category,
+body.dark-mode .c-type-card p,
+body.dark-mode .doc-title,
+body.dark-mode .clinic-form-header p,
+body.dark-mode .consultation-card-header p,
+body.dark-mode .about-text-card p,
+body.dark-mode .pillars-list li span,
+body.dark-mode .value-item p,
+body.dark-mode .founder-bio,
+body.dark-mode .contact-card p,
+body.dark-mode .branches-header p,
+body.dark-mode .form-header p,
+body.dark-mode .branch-item-card p,
+body.dark-mode .modal-header p {
+    color: var(--text-muted);
+}
+
+body.dark-mode .search-bar-inner,
+body.dark-mode .search-dropdown-header,
+body.dark-mode .catalog-toolbar,
+body.dark-mode .doctor-schedule-box,
+body.dark-mode .delivery-address-wrapper,
+body.dark-mode .branch-item-card,
+body.dark-mode .form-group input,
+body.dark-mode .form-group select,
+body.dark-mode .form-group textarea {
+    background-color: var(--bg-alt);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .search-input-wrapper input,
+body.dark-mode .search-category-dropdown select {
+    color: var(--text-main);
+}
+
+body.dark-mode .search-input-wrapper input::placeholder,
+body.dark-mode .form-group input::placeholder,
+body.dark-mode .form-group textarea::placeholder {
+    color: var(--text-light);
+}
+
+body.dark-mode .theme-toggle {
+    background-color: #F6D365;
+    border-color: #FFE59A;
+    color: #3D3110;
+}
+
+body.dark-mode .theme-toggle:hover {
+    background-color: #FFE082;
+}
+
+body.dark-mode .floating-promo-card h4,
+body.dark-mode .floating-promo-card p,
+body.dark-mode .doctor-schedule-box h5,
+body.dark-mode .slot-pill,
+body.dark-mode .dir-title h3,
+body.dark-mode .doc-name,
+body.dark-mode .doc-fee strong,
+body.dark-mode .clinic-form-header h3,
+body.dark-mode .consultation-card-header h3,
+body.dark-mode .about-text-card h3,
+body.dark-mode .about-pillars-card h3,
+body.dark-mode .value-item h4,
+body.dark-mode .founder-name,
+body.dark-mode .branches-header h3,
+body.dark-mode .form-header h3,
+body.dark-mode .branch-item-card h4,
+body.dark-mode .map-header h4,
+body.dark-mode .modal-header h3 {
+    color: var(--text-main);
+}
+
+body.dark-mode .slot-pill,
+body.dark-mode .map-pin,
+body.dark-mode .map-overlay-text {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .map-visual-placeholder {
+    background: linear-gradient(135deg, #193633 0%, #1A3041 100%);
+}
+
+body.dark-mode .cat-pill,
+body.dark-mode .subcat-dropdown-menu,
+body.dark-mode .active-subcat-bar,
+body.dark-mode .catalog-search-inline,
+body.dark-mode .catalog-sort select {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+    color: var(--text-main);
+}
+
+body.dark-mode .subcat-dropdown-menu::before {
+    background-color: var(--bg-surface);
+    border-color: var(--border-color);
+}
+
+body.dark-mode .subcat-header,
+body.dark-mode .subcat-link,
+body.dark-mode .subcat-link strong,
+body.dark-mode .subcat-filter-info,
+body.dark-mode .catalog-search-inline input,
+body.dark-mode .catalog-sort {
+    color: var(--text-main);
+}
+
+body.dark-mode .subcat-link span,
+body.dark-mode .pill-chevron,
+body.dark-mode .cat-pill i {
+    color: var(--text-muted);
 }
 
 /* --------------------------------------------------------------------------
@@ -3426,6 +3618,130 @@ h1, h2, h3, h4, h5, h6 {
 
     .cart-drawer-content {
         max-width: 100%;
+    }
+}
+
+/* --------------------------------------------------------------------------
+   17. Small-screen overflow guard
+   يمنع خروج عناصر الهيدر والإحصائيات خارج عرض شاشة الهاتف.
+   -------------------------------------------------------------------------- */
+@media (max-width: 768px) {
+    html,
+    body {
+        width: 100%;
+        max-width: 100%;
+        overflow-x: clip;
+    }
+
+    .container {
+        padding-inline: 1rem;
+    }
+
+    .top-bar-left {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .delivery-badge,
+    .divider {
+        display: none;
+    }
+
+    .header-content {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 0.75rem;
+    }
+
+    .brand-logo,
+    .header-actions,
+    .search-bar-container {
+        min-width: 0;
+    }
+
+    .header-actions {
+        gap: 0.45rem;
+    }
+
+    .btn-quick-rx,
+    .btn-cart-toggle {
+        padding: 0.55rem 0.7rem;
+        font-size: 0.82rem;
+        white-space: nowrap;
+    }
+
+    .mobile-menu-btn {
+        padding: 0.35rem;
+    }
+
+    .search-input-wrapper {
+        min-width: 0;
+        padding-inline: 0.55rem;
+    }
+
+    .search-input-wrapper input {
+        min-width: 0;
+        text-overflow: ellipsis;
+    }
+
+    .stats-grid {
+        gap: 0;
+    }
+
+    .stat-card {
+        min-width: 0;
+        padding: 1.2rem 0.65rem;
+    }
+
+    .stat-num {
+        font-size: clamp(1.45rem, 6vw, 2rem);
+        overflow-wrap: anywhere;
+    }
+
+    .stat-label {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 480px) {
+    .logo-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1.35rem;
+    }
+
+    .logo-title {
+        font-size: 1.15rem;
+    }
+
+    .logo-subtitle {
+        font-size: 0.68rem;
+    }
+
+    .btn-quick-rx span,
+    .cart-text {
+        display: none;
+    }
+
+    .btn-quick-rx,
+    .btn-cart-toggle {
+        width: 38px;
+        height: 38px;
+        padding: 0;
+        justify-content: center;
+        border-radius: 50%;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stat-card {
+        border-bottom: 1px solid var(--border-color);
+    }
+
+    .stat-card:last-child {
+        border-bottom: none;
     }
 }
 
