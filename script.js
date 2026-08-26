@@ -1060,55 +1060,216 @@ function detectUserLocation(context = 'modal') {
     );
 }
 
-function handleQuickRxModalSubmit(event) {
+async function handleQuickRxModalSubmit(event) {
     event.preventDefault();
 
-    const name = document.getElementById("modalRxName").value;
-    const phone = document.getElementById("modalRxPhone").value;
-    const method = document.querySelector('input[name="modalDeliveryMethod"]:checked').value;
-    const address = document.getElementById("modalAddressDetails") ? document.getElementById("modalAddressDetails").value : "";
-    const gpsLink = document.getElementById("modalGpsCoordinates") ? document.getElementById("modalGpsCoordinates").value : "";
-    const branch = document.getElementById("modalBranchSelect") ? document.getElementById("modalBranchSelect").value : "";
+    // Customer information
+    const name = document.getElementById("modalRxName").value.trim();
+    const phone = document.getElementById("modalRxPhone").value.trim();
 
-    const phoneRegex = /^01[0125][0-9]{8}$/;
-    if (!phoneRegex.test(phone)) {
-        showToast("يرجى إدخال رقم هاتف محمول مصري صحيح (11 رقماً)", "error");
+    // Medicines / prescription text
+    const medicines = document.getElementById("modalRxText").value.trim();
+
+    // Delivery method
+    const methodElement = document.querySelector(
+        'input[name="modalDeliveryMethod"]:checked'
+    );
+
+    if (!methodElement) {
+        showToast("يرجى اختيار طريقة الاستلام", "error");
         return;
     }
 
-    closePrescriptionModal();
+    const method = methodElement.value;
 
-    // Show confirmation modal
+    // Validate Egyptian phone
+    const phoneRegex = /^01[0125][0-9]{8}$/;
+
+    if (!phoneRegex.test(phone)) {
+        showToast(
+            "يرجى إدخال رقم هاتف مصري صحيح مكون من 11 رقماً",
+            "error"
+        );
+        return;
+    }
+
+    // Generate tracking number
     const randomNum = Math.floor(10000 + Math.random() * 90000);
     const trackingCode = `AWD-RX-${randomNum}`;
 
+    // Delivery information
     let deliveryDescription = "";
+    let address = "";
+
     if (method === "delivery") {
-        deliveryDescription = `توصيل منزلي سريع 24/7 ${address ? `(${address})` : ''} ${gpsLink ? '[مرفق موقع GPS دقيق]' : ''}`;
+
+        address =
+            document.getElementById("modalAddressDetails")?.value.trim() || "";
+
+        const gpsLink =
+            document.getElementById("modalGpsCoordinates")?.value.trim() || "";
+
+        deliveryDescription = "توصيل للمنزل";
+
+        if (address) {
+            deliveryDescription += ` - ${address}`;
+        }
+
+        if (gpsLink) {
+            deliveryDescription += ` - GPS: ${gpsLink}`;
+        }
+
     } else {
-        deliveryDescription = `استلام من (${branch || 'الفرع المحدد'})`;
+
+        const branch =
+            document.getElementById("modalBranchSelect")?.value || "";
+
+        deliveryDescription = `استلام من الفرع - ${branch}`;
+        address = branch;
     }
 
-    document.getElementById("successTrackingNumber").textContent = trackingCode;
-    document.getElementById("successPatientName").textContent = name;
-    document.getElementById("successPhone").textContent = phone;
-    document.getElementById("successDeliveryType").textContent = deliveryDescription;
+    // Selected prescription file
+    const fileInput =
+        document.getElementById("modalRxFileInput");
 
-    const successModal = document.getElementById("orderSuccessModal");
-    if (successModal) successModal.classList.add("active");
+    const selectedFile =
+        fileInput?.files?.[0] || null;
 
-    event.target.reset();
-    const modalFileLabel = document.getElementById("modalRxFileLabel");
-    if (modalFileLabel) modalFileLabel.textContent = "اضغط هنا لرفع صورة الروشتة أو اسحب الملف";
-    
-    const modalLocStatus = document.getElementById("modalLocationStatus");
-    if (modalLocStatus) {
-        modalLocStatus.textContent = "";
-        modalLocStatus.className = "location-status-badge";
+    // Disable submit button
+    const submitButton =
+        event.target.querySelector('button[type="submit"]');
+
+    if (submitButton) {
+        submitButton.disabled = true;
+
+        submitButton.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            جاري إرسال الطلب...
+        `;
     }
-    const modalGps = document.getElementById("modalGpsCoordinates");
-    if (modalGps) modalGps.value = "";
-    toggleModalDeliveryLocation(true);
+
+    try {
+
+        // Send order to Supabase
+        const { error } = await supabaseClient
+            .from("orders")
+            .insert({
+                customer_name: name,
+                phone: phone,
+                medications: medicines,
+                delivery_method: deliveryDescription,
+                address: address,
+                notes: selectedFile
+                    ? `تم اختيار روشتة: ${selectedFile.name}`
+                    : "",
+                status: "new",
+                tracking_code: trackingCode
+            });
+
+        // Database error
+        if (error) {
+
+            console.error("Supabase order error:", error);
+
+            showToast(
+                "حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.",
+                "error"
+            );
+
+            return;
+        }
+
+        // SUCCESS
+        console.log(
+            "Order successfully created:",
+            trackingCode
+        );
+
+        // Close prescription modal
+        closePrescriptionModal();
+
+        // Fill success modal
+        document.getElementById(
+            "successTrackingNumber"
+        ).textContent = trackingCode;
+
+        document.getElementById(
+            "successPatientName"
+        ).textContent = name;
+
+        document.getElementById(
+            "successPhone"
+        ).textContent = phone;
+
+        document.getElementById(
+            "successDeliveryType"
+        ).textContent = deliveryDescription;
+
+        // Show success modal
+        const successModal =
+            document.getElementById("orderSuccessModal");
+
+        if (successModal) {
+            successModal.classList.add("active");
+        }
+
+        // Reset form
+        event.target.reset();
+
+        // Reset upload label
+        const fileLabel =
+            document.getElementById("modalRxFileLabel");
+
+        if (fileLabel) {
+            fileLabel.textContent =
+                "اضغط هنا لرفع صورة الروشتة أو اسحب الملف";
+
+            fileLabel.style.color = "";
+        }
+
+        // Reset GPS
+        const locationStatus =
+            document.getElementById("modalLocationStatus");
+
+        if (locationStatus) {
+            locationStatus.textContent = "";
+            locationStatus.className =
+                "location-status-badge";
+        }
+
+        const gpsInput =
+            document.getElementById("modalGpsCoordinates");
+
+        if (gpsInput) {
+            gpsInput.value = "";
+        }
+
+        toggleModalDeliveryLocation(true);
+
+    } catch (error) {
+
+        console.error(
+            "Unexpected order error:",
+            error
+        );
+
+        showToast(
+            "حدث خطأ غير متوقع أثناء إرسال الطلب.",
+            "error"
+        );
+
+    } finally {
+
+        if (submitButton) {
+
+            submitButton.disabled = false;
+
+            submitButton.innerHTML = `
+                <i class="fa-solid fa-paper-plane"></i>
+                إرسال الطلب فوراً
+            `;
+        }
+    }
 }
 
 function closeSuccessModal() {
