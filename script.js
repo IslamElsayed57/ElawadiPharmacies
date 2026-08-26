@@ -1,3 +1,16 @@
+
+// ============================================================
+// Supabase Connection
+// ============================================================
+
+const SUPABASE_URL = "https://lbjeykexbkhyvuafndjr.supabase.co";
+
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_wXSSlFYiiq5JseRoTyvFmw_M2O5PEiU";
+
+const supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+);
 /**
  * ==========================================================================
  * صيدليات العوضي (Elawadi Pharmacies) - Main JavaScript
