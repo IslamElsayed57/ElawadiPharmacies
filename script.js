@@ -11,6 +11,43 @@ const supabaseClient = window.supabase.createClient(
     SUPABASE_URL,
     SUPABASE_PUBLISHABLE_KEY
 );
+
+/**
+ * Uploads a prescription file to the "prescriptions" Storage bucket
+ * and returns its public URL, or null if no file / upload failed.
+ */
+async function uploadPrescriptionFile(file) {
+    if (!file) return null;
+
+    try {
+        const fileExt = file.name.split(".").pop();
+        const safeName = `${Date.now()}_${Math.floor(Math.random() * 100000)}.${fileExt}`;
+
+        const { error: uploadError } = await supabaseClient
+            .storage
+            .from("prescriptions")
+            .upload(safeName, file, {
+                cacheControl: "3600",
+                upsert: false
+            });
+
+        if (uploadError) {
+            console.error("Prescription upload error:", uploadError);
+            return null;
+        }
+
+        const { data: publicUrlData } = supabaseClient
+            .storage
+            .from("prescriptions")
+            .getPublicUrl(safeName);
+
+        return publicUrlData?.publicUrl || null;
+
+    } catch (err) {
+        console.error("Unexpected prescription upload error:", err);
+        return null;
+    }
+}
 /**
  * ==========================================================================
  * صيدليات العوضي (Elawadi Pharmacies) - Main JavaScript
@@ -840,7 +877,11 @@ async function handleMedicineOrderSubmit(event) {
     }
 
     // Additional notes
-    const notes = document.getElementById("orderNotes").value.trim();
+    let notes = document.getElementById("orderNotes").value.trim();
+
+    // Selected prescription file (if any)
+    const rxFileInput = document.getElementById("rxFileInput");
+    const selectedRxFile = rxFileInput?.files?.[0] || null;
 
     // Disable submit button while sending
     const submitButton = event.target.querySelector('button[type="submit"]');
@@ -855,6 +896,24 @@ async function handleMedicineOrderSubmit(event) {
 
     try {
 
+        // Upload prescription image (if provided) before creating the order
+        let prescriptionUrl = null;
+
+        if (selectedRxFile) {
+            prescriptionUrl = await uploadPrescriptionFile(selectedRxFile);
+
+            if (!prescriptionUrl) {
+                showToast(
+                    "تعذر رفع صورة الروشتة، سيتم إرسال الطلب بدونها. يمكنك إرسالها لاحقاً عبر الواتساب.",
+                    "error"
+                );
+            } else {
+                notes = notes
+                    ? `${notes}\nروشتة مرفقة: ${prescriptionUrl}`
+                    : `روشتة مرفقة: ${prescriptionUrl}`;
+            }
+        }
+
         // Send order to Supabase
         const { data, error } = await supabaseClient
             .from("orders")
@@ -865,6 +924,7 @@ async function handleMedicineOrderSubmit(event) {
                 delivery_method: deliveryText,
                 address: addressText,
                 notes: notes,
+                prescription_url: prescriptionUrl,
                 status: "new",
                 tracking_code: trackingCode
             });
@@ -1150,6 +1210,24 @@ async function handleQuickRxModalSubmit(event) {
 
     try {
 
+        // Upload prescription image (if provided) before creating the order
+        let prescriptionUrl = null;
+        let modalNotes = "";
+
+        if (selectedFile) {
+            prescriptionUrl = await uploadPrescriptionFile(selectedFile);
+
+            if (!prescriptionUrl) {
+                showToast(
+                    "تعذر رفع صورة الروشتة، سيتم إرسال الطلب بدونها. يمكنك إرسالها لاحقاً عبر الواتساب.",
+                    "error"
+                );
+                modalNotes = `تم اختيار روشتة (فشل الرفع): ${selectedFile.name}`;
+            } else {
+                modalNotes = `روشتة مرفقة: ${prescriptionUrl}`;
+            }
+        }
+
         // Send order to Supabase
         const { error } = await supabaseClient
             .from("orders")
@@ -1159,9 +1237,8 @@ async function handleQuickRxModalSubmit(event) {
                 medications: medicines,
                 delivery_method: deliveryDescription,
                 address: address,
-                notes: selectedFile
-                    ? `تم اختيار روشتة: ${selectedFile.name}`
-                    : "",
+                notes: modalNotes,
+                prescription_url: prescriptionUrl,
                 status: "new",
                 tracking_code: trackingCode
             });
