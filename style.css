@@ -3953,3 +3953,58 @@ body.dark-mode .cat-pill i {
         font-size: 1rem; /* يمنع الـ zoom على iOS */
     }
 }
+
+/* ============================
+   Founder Card - Dark Mode
+   ============================ */
+
+body.dark-mode .founder-card {
+    background: linear-gradient(
+        135deg,
+        #1F3435 0%,
+        #1D2B3A 100%
+    );
+    border-color: #40505F;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+body.dark-mode .founder-role-tag {
+    color: #59C89F;
+}
+
+body.dark-mode .founder-name {
+    color: #F5F7FA;
+}
+
+body.dark-mode .founder-bio {
+    color: #C7D0D6;
+}
+
+body.dark-mode .ach-badge {
+    background-color: #FFFFFF;
+    border-color: #D8E0E5;
+    color: #347C72;
+}
+
+body.dark-mode .founder-avatar-placeholder {
+    background: linear-gradient(
+        135deg,
+        #68C69E 0%,
+        #3D8F7B 100%
+    );
+    border-color: #FFFFFF;
+    box-shadow: 0 8px 25px rgba(80, 190, 150, 0.25);
+}
+
+/* Hot Card text - Dark Mode */
+
+body.dark-mode .contact-card.hot-card p {
+    color: #FFFFFF;
+}
+
+/* Health Authority - Dark Mode */
+
+body.dark-mode .health-authority,
+body.dark-mode .health-authority i {
+    color: #FFFFFF;
+}
