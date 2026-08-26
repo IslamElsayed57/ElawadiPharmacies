@@ -963,51 +963,6 @@ async function handleMedicineOrderSubmit(event) {
     }
 }
 
-    // Generate simulated tracking ID
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const trackingCode = `AWD-EGY-${randomNum}`;
-
-    // Delivery text
-    let deliveryText = "";
-    if (deliveryMethod === "delivery") {
-        const gov = document.getElementById("orderGov").value;
-        const city = document.getElementById("orderCity").value;
-        const street = document.getElementById("orderStreet").value;
-        const gpsLink = document.getElementById("mainGpsCoordinates").value;
-        deliveryText = `توصيل منزلي (${gov} - ${city} - ${street})${gpsLink ? ' [تم إرفاق إحداثيات GPS]' : ''}`;
-    } else {
-        const branch = document.getElementById("orderBranch").value;
-        deliveryText = `استلام من الصيدلية (${branch})`;
-    }
-
-    // Populate Success Modal
-    document.getElementById("successTrackingNumber").textContent = trackingCode;
-    document.getElementById("successPatientName").textContent = name;
-    document.getElementById("successPhone").textContent = phone;
-    document.getElementById("successDeliveryType").textContent = deliveryText;
-
-    // Show modal
-    const successModal = document.getElementById("orderSuccessModal");
-    if (successModal) successModal.classList.add("active");
-
-    // Reset Form and Cart
-    event.target.reset();
-    state.cart = [];
-    updateCartUI();
-    const rxLabel = document.getElementById("rxFileLabel");
-    if (rxLabel) rxLabel.textContent = "اضغط هنا لرفع صورة الروشتة أو اسحب الملف";
-    
-    const mainLocStatus = document.getElementById("mainLocationStatus");
-    if (mainLocStatus) {
-        mainLocStatus.textContent = "";
-        mainLocStatus.className = "location-status-badge";
-    }
-    const mainGps = document.getElementById("mainGpsCoordinates");
-    if (mainGps) mainGps.value = "";
-    
-    toggleDeliveryFields(false);
-}
-
 // --------------------------------------------------------------------------
 // 9. Quick Prescription Modal Handlers & GPS Geolocation
 // --------------------------------------------------------------------------
