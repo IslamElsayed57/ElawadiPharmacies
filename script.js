@@ -771,20 +771,197 @@ function handleFileSelect(event) {
     }
 }
 
-function handleMedicineOrderSubmit(event) {
+async function handleMedicineOrderSubmit(event) {
     event.preventDefault();
 
-    const medicines = document.getElementById("orderMedicineNames").value;
-    const name = document.getElementById("orderPatientName").value;
-    const phone = document.getElementById("orderPhone").value;
-    const deliveryMethod = document.querySelector('input[name="deliveryMethod"]:checked').value;
-    
-    // Egyptian phone validation
-    const phoneRegex = /^01[0125][0-9]{8}$/;
-    if (!phoneRegex.test(phone)) {
-        showToast("يرجى إدخال رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015 ومكون من 11 رقماً", "error");
+    // Get basic customer information
+    const medicines = document.getElementById("orderMedicineNames").value.trim();
+    const name = document.getElementById("orderPatientName").value.trim();
+    const phone = document.getElementById("orderPhone").value.trim();
+
+    const deliveryMethodElement = document.querySelector(
+        'input[name="deliveryMethod"]:checked'
+    );
+
+    if (!deliveryMethodElement) {
+        showToast("يرجى اختيار طريقة استلام الطلب", "error");
         return;
     }
+
+    const deliveryMethod = deliveryMethodElement.value;
+
+    // Egyptian phone validation
+    const phoneRegex = /^01[0125][0-9]{8}$/;
+
+    if (!phoneRegex.test(phone)) {
+        showToast(
+            "يرجى إدخال رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015 ومكون من 11 رقماً",
+            "error"
+        );
+        return;
+    }
+
+    // Generate order tracking number
+    const randomNum = Math.floor(10000 + Math.random() * 90000);
+    const trackingCode = `AWD-EGY-${randomNum}`;
+
+    // Prepare delivery information
+    let deliveryText = "";
+    let addressText = "";
+
+    if (deliveryMethod === "delivery") {
+
+        const gov = document.getElementById("orderGov").value;
+        const city = document.getElementById("orderCity").value.trim();
+        const street = document.getElementById("orderStreet").value.trim();
+        const building = document.getElementById("orderBuilding").value.trim();
+        const apartment = document.getElementById("orderApartment").value.trim();
+        const landmark = document.getElementById("orderLandmark").value.trim();
+        const gpsLink = document.getElementById("mainGpsCoordinates").value.trim();
+
+        deliveryText = "توصيل للمنزل";
+
+        addressText =
+            `المحافظة: ${gov}\n` +
+            `المنطقة: ${city}\n` +
+            `الشارع: ${street}\n` +
+            `رقم العمارة: ${building}\n` +
+            `الشقة والدور: ${apartment || "غير محدد"}\n` +
+            `علامة مميزة: ${landmark || "لا يوجد"}\n` +
+            `GPS: ${gpsLink || "غير محدد"}`;
+
+    } else {
+
+        const branch = document.getElementById("orderBranch").value;
+
+        deliveryText = `استلام من الصيدلية - ${branch}`;
+
+        addressText = branch;
+    }
+
+    // Additional notes
+    const notes = document.getElementById("orderNotes").value.trim();
+
+    // Disable submit button while sending
+    const submitButton = event.target.querySelector('button[type="submit"]');
+
+    if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.innerHTML = `
+            <i class="fa-solid fa-spinner fa-spin"></i>
+            جاري إرسال الطلب...
+        `;
+    }
+
+    try {
+
+        // Send order to Supabase
+        const { data, error } = await supabaseClient
+            .from("orders")
+            .insert({
+                customer_name: name,
+                phone: phone,
+                medications: medicines,
+                delivery_method: deliveryText,
+                address: addressText,
+                notes: notes,
+                status: "new",
+                tracking_code: trackingCode
+            })
+            .select()
+            .single();
+
+        // Check for database error
+        if (error) {
+            console.error("Supabase order error:", error);
+
+            showToast(
+                "حدث خطأ أثناء إرسال الطلب. يرجى المحاولة مرة أخرى.",
+                "error"
+            );
+
+            return;
+        }
+
+        console.log("Order successfully created:", data);
+
+        // Show success information
+        document.getElementById("successTrackingNumber").textContent =
+            trackingCode;
+
+        document.getElementById("successPatientName").textContent =
+            name;
+
+        document.getElementById("successPhone").textContent =
+            phone;
+
+        document.getElementById("successDeliveryType").textContent =
+            deliveryText;
+
+        const successModal =
+            document.getElementById("orderSuccessModal");
+
+        if (successModal) {
+            successModal.classList.add("active");
+        }
+
+        // Reset form
+        event.target.reset();
+
+        // Reset cart
+        state.cart = [];
+        updateCartUI();
+
+        // Reset prescription label
+        const rxLabel =
+            document.getElementById("rxFileLabel");
+
+        if (rxLabel) {
+            rxLabel.textContent =
+                "اضغط هنا لرفع صورة الروشتة أو اسحب الملف";
+        }
+
+        // Reset GPS
+        const mainLocStatus =
+            document.getElementById("mainLocationStatus");
+
+        if (mainLocStatus) {
+            mainLocStatus.textContent = "";
+            mainLocStatus.className =
+                "location-status-badge";
+        }
+
+        const mainGps =
+            document.getElementById("mainGpsCoordinates");
+
+        if (mainGps) {
+            mainGps.value = "";
+        }
+
+        toggleDeliveryFields(false);
+
+    } catch (error) {
+
+        console.error("Unexpected order error:", error);
+
+        showToast(
+            "حدث خطأ غير متوقع أثناء إرسال الطلب.",
+            "error"
+        );
+
+    } finally {
+
+        // Re-enable submit button
+        if (submitButton) {
+            submitButton.disabled = false;
+
+            submitButton.innerHTML = `
+                <i class="fa-solid fa-paper-plane"></i>
+                تأكيد وإرسال طلب الأدوية
+            `;
+        }
+    }
+}
 
     // Generate simulated tracking ID
     const randomNum = Math.floor(10000 + Math.random() * 90000);
