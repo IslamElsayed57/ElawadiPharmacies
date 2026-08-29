@@ -916,7 +916,8 @@ async function handleMedicineOrderSubmit(event) {
                 prescription_url: prescriptionUrl,
                 status: "new",
                 tracking_code: trackingCode,
-                branch_id: selectedBranchId
+                branch_id: selectedBranchId,
+                order_type: deliveryMethod === "delivery" ? "delivery" : "pickup"
             });
             
         // Check for database error
@@ -1233,7 +1234,8 @@ async function handleQuickRxModalSubmit(event) {
                 prescription_url: prescriptionUrl,
                 status: "new",
                 tracking_code: trackingCode,
-                branch_id: selectedBranchId
+                branch_id: selectedBranchId,
+                order_type: method === "delivery" ? "delivery" : "pickup"
             });
 
         // Database error
