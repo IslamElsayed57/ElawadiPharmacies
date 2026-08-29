@@ -1163,12 +1163,10 @@ async function handleQuickRxModalSubmit(event) {
 
         deliveryDescription = "توصيل للمنزل";
 
-        if (address) {
-            deliveryDescription += ` - ${address}`;
-        }
-
         if (gpsLink) {
-            deliveryDescription += ` - GPS: ${gpsLink}`;
+            address = address
+                ? `${address}\nGPS: ${gpsLink}`
+                : `GPS: ${gpsLink}`;
         }
 
     } else {
