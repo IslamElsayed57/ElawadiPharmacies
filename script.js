@@ -58,216 +58,71 @@ async function uploadPrescriptionFile(file) {
 // --------------------------------------------------------------------------
 // 1. Data Store: Products Catalog & Branches
 // --------------------------------------------------------------------------
-const PRODUCTS_DATA = [
-    {
-        id: 1,
-        nameAr: "بنادول إكسترا 24 قرص",
-        nameEn: "Panadol Extra 24 Tablets",
-        category: "medicines",
-        categoryName: "الأدوية والعلاجات",
-        price: 45.00,
-        oldPrice: 50.00,
-        badge: "الأكثر طلباً",
-        badgeType: "official",
-        icon: "fa-pills",
-        inStock: true
-    },
-    {
-        id: 2,
-        nameAr: "كونكور 5 مجم 30 قرص",
-        nameEn: "Concor 5mg 30 Tablets",
-        category: "medicines",
-        categoryName: "الأدوية والعلاجات",
-        price: 58.50,
-        oldPrice: null,
-        badge: "أدوية الضغط والقلب",
-        badgeType: "official",
-        icon: "fa-heart-pulse",
-        inStock: true
-    },
-    {
-        id: 3,
-        nameAr: "أوجمنتين 1 جم 14 قرص",
-        nameEn: "Augmentin 1g 14 Tablets",
-        category: "medicines",
-        categoryName: "الأدوية والعلاجات",
-        price: 110.00,
-        oldPrice: null,
-        badge: "مضاد حيوي معتمد",
-        badgeType: "official",
-        icon: "fa-capsules",
-        inStock: true
-    },
-    {
-        id: 4,
-        nameAr: "سيرافيه غسول مرطب للبشرة 236 مل",
-        nameEn: "CeraVe Hydrating Cleanser 236ml",
-        category: "skincare",
-        categoryName: "العناية بالبشرة",
-        price: 360.00,
-        oldPrice: 420.00,
-        badge: "خصم 15%",
-        badgeType: "discount",
-        icon: "fa-pump-soap",
-        inStock: true
-    },
-    {
-        id: 5,
-        nameAr: "لاروش بوزيه أنثيليوس واقي شمس SPF50+",
-        nameEn: "La Roche-Posay Anthelios Invisible Fluid",
-        category: "skincare",
-        categoryName: "العناية بالبشرة",
-        price: 680.00,
-        oldPrice: 750.00,
-        badge: "أصلي 100%",
-        badgeType: "official",
-        icon: "fa-sun",
-        inStock: true
-    },
-    {
-        id: 6,
-        nameAr: "بيوديرما ماء ميسيلار سينسيبيو 500 مل",
-        nameEn: "Bioderma Sensibio H2O Micellar Water 500ml",
-        category: "skincare",
-        categoryName: "العناية بالبشرة",
-        price: 490.00,
-        oldPrice: 560.00,
-        badge: "عرض خاص",
-        badgeType: "discount",
-        icon: "fa-wand-magic-sparkles",
-        inStock: true
-    },
-    {
-        id: 7,
-        nameAr: "فيشي ديركوس شامبو ضد القشرة 200 مل",
-        nameEn: "Vichy Dercos Anti-Dandruff Shampoo 200ml",
-        category: "haircare",
-        categoryName: "العناية بالشعر",
-        price: 420.00,
-        oldPrice: null,
-        badge: "علاج طبي",
-        badgeType: "official",
-        icon: "fa-spa",
-        inStock: true
-    },
-    {
-        id: 8,
-        nameAr: "سيروم دكتور ميركل لنمو الشعر 118 مل",
-        nameEn: "Dr. Miracle's Daily Anti-Breakage Serum",
-        category: "haircare",
-        categoryName: "العناية بالشعر",
-        price: 310.00,
-        oldPrice: 360.00,
-        badge: "الأكثر مبيعاً",
-        badgeType: "discount",
-        icon: "fa-feather",
-        inStock: true
-    },
-    {
-        id: 9,
-        nameAr: "سنتروم مكمل غذائي مع لوتين 30 قرص",
-        nameEn: "Centrum with Lutein Multivitamin 30 Tabs",
-        category: "vitamins",
-        categoryName: "الفيتامينات والمكملات",
-        price: 195.00,
-        oldPrice: 220.00,
-        badge: "دعم المناعة",
-        badgeType: "official",
-        icon: "fa-shield-virus",
-        inStock: true
-    },
-    {
-        id: 10,
-        nameAr: "أوميجا 3 بلس 30 كبسولة",
-        nameEn: "Omega-3 Plus 30 Capsules",
-        category: "vitamins",
-        categoryName: "الفيتامينات والمكملات",
-        price: 85.00,
-        oldPrice: null,
-        badge: "صحة القلب",
-        badgeType: "official",
-        icon: "fa-apple-whole",
-        inStock: true
-    },
-    {
-        id: 11,
-        nameAr: "حفاضات بامبرز بريميوم كير مقاس 3 (60 حفاضة)",
-        nameEn: "Pampers Premium Care Size 3 (60 Pcs)",
-        category: "baby",
-        categoryName: "الأم والطفل",
-        price: 340.00,
-        oldPrice: 380.00,
-        badge: "عناية فائقة",
-        badgeType: "discount",
-        icon: "fa-baby",
-        inStock: true
-    },
-    {
-        id: 12,
-        nameAr: "حليب أبتاميل 1 للرضع 400 جم",
-        nameEn: "Aptamil 1 Infant Formula 400g",
-        category: "baby",
-        categoryName: "الأم والطفل",
-        price: 260.00,
-        oldPrice: null,
-        badge: "غذاء الرضع",
-        badgeType: "official",
-        icon: "fa-baby-carriage",
-        inStock: true
-    },
-    {
-        id: 13,
-        nameAr: "جهاز قياس السكر أكوا تشيك إنستانت + 50 شريط",
-        nameEn: "Accu-Chek Instant Blood Glucose Meter",
-        category: "devices",
-        categoryName: "الأجهزة والمعدات الطبية",
-        price: 750.00,
-        oldPrice: 890.00,
-        badge: "ضمان عامين",
-        badgeType: "discount",
-        icon: "fa-gauge-high",
-        inStock: true
-    },
-    {
-        id: 14,
-        nameAr: "جهاز قياس ضغط الدم ديجيتال بيورير BM28",
-        nameEn: "Beurer BM28 Digital Blood Pressure Monitor",
-        category: "devices",
-        categoryName: "الأجهزة والمعدات الطبية",
-        price: 1350.00,
-        oldPrice: 1550.00,
-        badge: "ألماني أصلي",
-        badgeType: "official",
-        icon: "fa-heart-circle-bolt",
-        inStock: true
-    },
-    {
-        id: 15,
-        nameAr: "كريم بيبانثين المرطب للجلد 30 جم",
-        nameEn: "Bepanthen Moisturizing Cream 30g",
-        category: "skincare",
-        categoryName: "العناية بالبشرة",
-        price: 90.00,
-        oldPrice: null,
-        badge: "ترطيب عميق",
-        badgeType: "official",
-        icon: "fa-pump-medical",
-        inStock: true
-    },
-    {
-        id: 16,
-        nameAr: "أقراص استحلاب ستربسلس بالعسل والليمون",
-        nameEn: "Strepsils Honey & Lemon 24 Lozenges",
-        category: "medicines",
-        categoryName: "الأدوية والعلاجات",
-        price: 125.00,
-        oldPrice: null,
-        badge: "تسكين الحلق",
-        badgeType: "official",
-        icon: "fa-head-side-cough",
-        inStock: true
+let PRODUCTS_DATA = [];
+let CATEGORIES_DATA = [];
+
+/**
+ * Fetches active categories and products from Supabase and builds
+ * PRODUCTS_DATA in the same shape the rest of the app already expects,
+ * then triggers the first catalog render. Called once on page load.
+ */
+async function loadProductsCatalog() {
+    try {
+        const { data: categories, error: catError } = await supabaseClient
+            .from("categories")
+            .select("id, name_ar, slug")
+            .eq("is_active", true);
+
+        if (catError) throw catError;
+
+        CATEGORIES_DATA = categories || [];
+
+        const categoryMap = {};
+        CATEGORIES_DATA.forEach(c => {
+            categoryMap[c.id] = { slug: c.slug, name_ar: c.name_ar };
+        });
+
+        const { data: products, error: prodError } = await supabaseClient
+            .from("products")
+            .select("*")
+            .eq("is_active", true)
+            .order("created_at", { ascending: false });
+
+        if (prodError) throw prodError;
+
+        PRODUCTS_DATA = (products || []).map(p => {
+            const cat = categoryMap[p.category_id] || {};
+            return {
+                id: p.id,
+                nameAr: p.name_ar || "",
+                nameEn: p.name_en || "",
+                category: cat.slug || "medicines",
+                categoryName: cat.name_ar || "",
+                price: Number(p.price) || 0,
+                oldPrice: p.old_price ? Number(p.old_price) : null,
+                badge: p.badge || "",
+                badgeType: p.badge_type || "official",
+                icon: p.icon || "fa-pills",
+                imageUrl: p.image_url || null,
+                inStock: p.in_stock !== false
+            };
+        });
+
+        renderProductsCatalog();
+
+    } catch (err) {
+        console.error("Load products catalog error:", err);
+        const grid = document.getElementById("productsCatalogGrid");
+        if (grid) {
+            grid.innerHTML = `
+                <div style="text-align:center; padding:3rem 1rem; color:#EF4444;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size:2rem; margin-bottom:0.75rem;"></i>
+                    <p>تعذر تحميل قائمة الأدوية والمنتجات حالياً. برجاء تحديث الصفحة أو المحاولة لاحقاً.</p>
+                </div>
+            `;
+        }
     }
-];
+}
 
 const BRANCHES_DATA = {
     dakahlia: [
@@ -307,8 +162,8 @@ let state = {
 document.addEventListener("DOMContentLoaded", () => {
     setupThemeToggle();
 
-    // Initial products render
-    renderProductsCatalog();
+    // Initial products render (fetched live from Supabase)
+    loadProductsCatalog();
 
     // Initial branches render
     showBranchCity("dakahlia");
@@ -457,12 +312,16 @@ function renderProductsCatalog() {
         grid.innerHTML = filtered.map(product => {
             const badgeClass = product.badgeType === "discount" ? "badge-discount" : "badge-official";
             const oldPriceHtml = product.oldPrice ? `<span class="old-price">${product.oldPrice.toFixed(2)} ج.م</span>` : "";
-            
+            const badgeHtml = product.badge ? `<span class="product-badge-tag ${badgeClass}">${product.badge}</span>` : "";
+            const imageHtml = product.imageUrl
+                ? `<img src="${product.imageUrl}" alt="${product.nameAr}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;">`
+                : `<i class="fa-solid ${product.icon}"></i>`;
+
             return `
                 <div class="product-card" data-id="${product.id}">
-                    <span class="product-badge-tag ${badgeClass}">${product.badge}</span>
+                    ${badgeHtml}
                     <div class="product-img-wrap">
-                        <i class="fa-solid ${product.icon}"></i>
+                        ${imageHtml}
                     </div>
                     <span class="product-cat-name">${product.categoryName}</span>
                     <h4 class="product-name">${product.nameAr}</h4>
@@ -473,7 +332,7 @@ function renderProductsCatalog() {
                         ${oldPriceHtml}
                     </div>
 
-                    <button class="btn-add-order" onclick="addToCart(${product.id})">
+                    <button class="btn-add-order" onclick="addToCart('${product.id}')">
                         <i class="fa-solid fa-cart-plus"></i>
                         <span>إضافة للطلب</span>
                     </button>
@@ -595,7 +454,7 @@ function setupGlobalSearchListeners() {
 
             if (matches.length > 0) {
                 dropdownList.innerHTML = matches.slice(0, 6).map(p => `
-                    <div class="search-dropdown-item" onclick="selectSearchItem(${p.id})">
+                    <div class="search-dropdown-item" onclick="selectSearchItem('${p.id}')">
                         <div class="search-item-info">
                             <div class="search-item-icon"><i class="fa-solid ${p.icon}"></i></div>
                             <div>
@@ -717,10 +576,10 @@ function updateCartUI() {
                     <div class="cart-item-price">${(item.price * item.quantity).toFixed(2)} ج.م (${item.price.toFixed(2)} ج.م للواحد)</div>
                 </div>
                 <div class="cart-item-actions">
-                    <button class="btn-qty" onclick="updateItemQuantity(${item.id}, -1)">-</button>
+                    <button class="btn-qty" onclick="updateItemQuantity('${item.id}', -1)">-</button>
                     <span style="font-weight: 700; min-width: 20px; text-align: center;">${item.quantity}</span>
-                    <button class="btn-qty" onclick="updateItemQuantity(${item.id}, 1)">+</button>
-                    <button class="btn-qty" style="color: #EF4444;" onclick="removeItemFromCart(${item.id})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+                    <button class="btn-qty" onclick="updateItemQuantity('${item.id}', 1)">+</button>
+                    <button class="btn-qty" style="color: #EF4444;" onclick="removeItemFromCart('${item.id}')" title="حذف"><i class="fa-solid fa-trash"></i></button>
                 </div>
             </div>
         `).join("");
