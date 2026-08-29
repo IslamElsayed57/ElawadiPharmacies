@@ -270,68 +270,20 @@ const PRODUCTS_DATA = [
 ];
 
 const BRANCHES_DATA = {
-    cairo: [
+    dakahlia: [
         {
-            name: "فرع مصر الجديدة (الرئيسي)",
-            address: "ميدان تريومف - شارع النزهة، مصر الجديدة، القاهرة",
-            phone: "02-24180001",
+            name: "فرع طناح - المنصورة - الدقهلية",
+            address: "الشارع الرئيسي - بجوار المجمع الطبي، طناح، مركز المنصورة، الدقهلية",
+            phone: "050-2450001",
             hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. أحمد سامي"
+            manager: "د. إسلام السيد"
         },
         {
-            name: "فرع التجمع الخامس",
-            address: "شارع التسعين الشمالي - أمام مول كايرو فيستيفال، القاهرة الجديدة",
-            phone: "02-28100002",
+            name: "فرع كفر طناح - المنصورة - الدقهلية",
+            address: "طريق كفر طناح الرئيسي - أمام المسجد الكبير، كفر طناح، المنصورة، الدقهلية",
+            phone: "050-2450002",
             hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. هدى مراد"
-        },
-        {
-            name: "فرع المعادي",
-            address: "شارع النصر - بجوار ميدان الجزائر، المعادي، القاهرة",
-            phone: "02-25190003",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. كريم يوسف"
-        }
-    ],
-    giza: [
-        {
-            name: "فرع الدقي",
-            address: "شارع مصدق - متفرع من محيي الدين أبو العز، الدقي، الجيزة",
-            phone: "02-37610004",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. عمر طارق"
-        },
-        {
-            name: "فرع الشيخ زايد",
-            address: "وصلة دهشور - كمبوند بيفرلي هيلز، الشيخ زايد، الجيزة",
-            phone: "02-38500005",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. سارة عادل"
-        }
-    ],
-    alex: [
-        {
-            name: "فرع سموحة",
-            address: "شارع فوزي معاذ - بجوار نادي سموحة، الإسكندرية",
-            phone: "03-4290006",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. ماجد فتحي"
-        },
-        {
-            name: "فرع لوران",
-            address: "طريق الحرية (شارع أبو قير) - لوران، الإسكندرية",
-            phone: "03-5840007",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. نورهان شوقي"
-        }
-    ],
-    delta: [
-        {
-            name: "فرع المنصورة",
-            address: "شارع المشاية السفلية - أمام حديقة شجرة الدر، المنصورة، الدقهلية",
-            phone: "050-2310008",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. حسام العوضي"
+            manager: "د. أحمد العوضي"
         }
     ]
 };
@@ -359,9 +311,12 @@ document.addEventListener("DOMContentLoaded", () => {
     renderProductsCatalog();
 
     // Initial branches render
-    showBranchCity("cairo");
+    showBranchCity("dakahlia");
 
-    // Initial doctor slots render
+    // Populate clinic branch dropdown
+    populateClinicBranchOptions();
+
+    // Initial doctor slots render (also populates doctor list for the default branch)
     onDoctorSelectChange("أ.د. شريف عبد الرحمن");
 
     // Check URL hash for routing
@@ -375,7 +330,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // 3.1 Theme (light / dark mode)
 // --------------------------------------------------------------------------
 function setupThemeToggle() {
-    const savedTheme = localStorage.getItem("elawadi-theme");
+    const savedTheme = localStorage.getItem("elawadi_theme") || localStorage.getItem("elawadi-theme");
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     applyTheme(savedTheme === "dark" || (!savedTheme && prefersDark));
 }
@@ -384,6 +339,7 @@ function toggleTheme() {
     const isDark = !document.body.classList.contains("dark-mode");
     applyTheme(isDark);
     localStorage.setItem("elawadi-theme", isDark ? "dark" : "light");
+    localStorage.setItem("elawadi_theme", isDark ? "dark" : "light");
 }
 
 function applyTheme(isDark) {
@@ -1391,35 +1347,35 @@ const DOCTORS_DATA = [
     {
         name: "أ.د. شريف عبد الرحمن",
         specialty: "باطنة وسكر وغدد صماء",
-        branch: "فرع مصر الجديدة (القاهرة)",
+        branch: "فرع طناح - المنصورة - الدقهلية",
         fee: 250,
         slots: ["السبت 06:00 م", "الإثنين 07:30 م", "الأربعاء 05:00 م"]
     },
     {
         name: "د. مي مجدي",
         specialty: "أمراض جلدية وتجميل وليزر",
-        branch: "فرع التجمع الخامس (القاهرة)",
+        branch: "فرع كفر طناح - المنصورة - الدقهلية",
         fee: 300,
         slots: ["الأحد 04:00 م", "الثلاثاء 06:30 م", "الخميس 05:00 م"]
     },
     {
         name: "د. حسام الدين فاروق",
         specialty: "طب الأطفال وحديثي الولادة",
-        branch: "فرع المعادي (القاهرة)",
+        branch: "فرع طناح - المنصورة - الدقهلية",
         fee: 220,
         slots: ["السبت 02:00 م", "الإثنين 03:30 م", "الأربعاء 02:00 م"]
     },
     {
         name: "د. ندى الشريف",
         specialty: "تغذية علاجية وسمنة ونحافة",
-        branch: "فرع الدقي (الجيزة)",
+        branch: "فرع كفر طناح - المنصورة - الدقهلية",
         fee: 200,
         slots: ["الإثنين 05:00 م", "الخميس 07:00 م", "الجمعة 04:00 م"]
     },
     {
         name: "د. طارق مراد",
         specialty: "جراحة العظام والمفاصل",
-        branch: "فرع الشيخ زايد (الجيزة)",
+        branch: "فرع طناح - المنصورة - الدقهلية",
         fee: 280,
         slots: ["السبت 05:00 م", "الثلاثاء 07:00 م"]
     }
@@ -1448,13 +1404,15 @@ function selectDoctorForBooking(docName, specialty, branch, slots) {
     // Switch to clinic view if not already
     switchConsultationMode("clinic");
 
-    const docSelect = document.getElementById("clinicDocSelect");
-    const branchInput = document.getElementById("clinicBranchInput");
+    // Prefer the canonical branch name from DOCTORS_DATA (the branch param
+    // passed from the doctor card can be a shortened label like "فرع كفر طناح").
+    const docObj = DOCTORS_DATA.find(d => d.name === docName);
+    const branchName = docObj ? docObj.branch : branch;
 
-    if (docSelect) docSelect.value = docName;
-    if (branchInput) branchInput.value = branch;
+    const branchSelect = document.getElementById("clinicBranchInput");
+    if (branchSelect) branchSelect.value = branchName;
 
-    renderInteractiveTimeSlots(slots);
+    populateDoctorOptionsForBranch(branchName, docName);
 
     // Scroll to form smoothly
     const formCard = document.getElementById("clinicBookingFormCard");
@@ -1465,13 +1423,55 @@ function selectDoctorForBooking(docName, specialty, branch, slots) {
     showToast(`تم اختيار ${docName} - يرجى تحديد وقت الكشف المناسب وتأكيد الحجز`, "info");
 }
 
+function populateClinicBranchOptions() {
+    const branchSelect = document.getElementById("clinicBranchInput");
+    if (!branchSelect) return;
+
+    // Flatten all branches from every city in BRANCHES_DATA
+    const allBranches = Object.values(BRANCHES_DATA).flat();
+
+    branchSelect.innerHTML = allBranches.map(b => `
+        <option value="${b.name}">${b.name}</option>
+    `).join("");
+}
+
+// Fills the doctor dropdown with only the doctors who work at the given
+// branch, and auto-selects one (preferring `preferredDocName` if it's
+// actually available there), then renders that doctor's time slots.
+function populateDoctorOptionsForBranch(branchName, preferredDocName) {
+    const docSelect = document.getElementById("clinicDocSelect");
+    if (!docSelect) return;
+
+    const doctorsInBranch = DOCTORS_DATA.filter(d => d.branch === branchName);
+
+    if (doctorsInBranch.length === 0) {
+        docSelect.innerHTML = `<option value="">لا يوجد أطباء متاحون في هذا الفرع حالياً</option>`;
+        renderInteractiveTimeSlots([]);
+        return;
+    }
+
+    docSelect.innerHTML = doctorsInBranch.map(d => `
+        <option value="${d.name}">${d.name} (${d.specialty})</option>
+    `).join("");
+
+    const docToSelect = doctorsInBranch.find(d => d.name === preferredDocName) || doctorsInBranch[0];
+    docSelect.value = docToSelect.name;
+    renderInteractiveTimeSlots(docToSelect.slots);
+}
+
+// Called when the user manually picks a different branch: narrows the
+// doctor list down to that branch's doctors.
+function onBranchSelectChange(branchName) {
+    populateDoctorOptionsForBranch(branchName);
+}
+
 function onDoctorSelectChange(docName) {
     const docObj = DOCTORS_DATA.find(d => d.name === docName);
-    const branchInput = document.getElementById("clinicBranchInput");
+    const branchSelect = document.getElementById("clinicBranchInput");
 
     if (docObj) {
-        if (branchInput) branchInput.value = docObj.branch;
-        renderInteractiveTimeSlots(docObj.slots);
+        if (branchSelect) branchSelect.value = docObj.branch;
+        populateDoctorOptionsForBranch(docObj.branch, docName);
     }
 }
 
