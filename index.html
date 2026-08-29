@@ -1,0 +1,1846 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>صيدليات العوضي | صحتك وجمالك في أيدٍ أمينة</title>
+    <meta name="description"
+        content="موقع صيدليات العوضي - صيدلية مصرية رائدة متخصصة في الأدوية ومستحضرات التجميل، خدمة 24 ساعة، توصيل سريع لجميع المحافظات، واستشارات طبية وصيدلانية متخصصة.">
+
+    <!-- Google Fonts (Cairo & Tajawal) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@400;500;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ==================== 1. TOP ANNOUNCEMENT BAR ==================== -->
+    <div class="top-bar">
+        <div class="container top-bar-content">
+            <div class="top-bar-left">
+                <span class="hotline-badge">
+                    <i class="fa-solid fa-phone-volume"></i>
+                    الخط الساخن: <strong>غير متاح بعد</strong>
+                </span>
+                <span class="divider">|</span>
+                <span class="delivery-badge">
+                    <i class="fa-solid fa-truck-fast"></i>
+                    توصيل سريع
+                </span>
+            </div>
+            <div class="top-bar-right">
+                <span class="health-authority">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    أدوية معتمدة من هيئة الدواء المصرية
+                </span>
+                <div class="social-links-top">
+                    <a href="https://wa.me/201000000000" target="_blank" title="واتساب" aria-label="واتساب"><i
+                            class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://facebook.com" target="_blank" title="فيسبوك" aria-label="فيسبوك"><i
+                            class="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://instagram.com" target="_blank" title="انستجرام" aria-label="انستجرام"><i
+                            class="fa-brands fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== 2. MAIN HEADER & NAHDI-STYLE SEARCH ==================== -->
+    <header class="main-header" id="mainHeader">
+        <div class="container header-content">
+            <!-- Brand Logo -->
+            <a href="#home" class="brand-logo" onclick="switchSection('home')">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-staff-snake"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="logo-title">صيدليات العوضي</span>
+                    <span class="logo-subtitle">Elawadi Pharmacies</span>
+                </div>
+            </a>
+
+            <!-- Style Smart Search Bar -->
+            <div class="search-bar-container">
+                <div class="search-bar-inner">
+                    <div class="search-category-dropdown">
+                        <select id="searchCategorySelect" onchange="handleCategoryFilter(this.value)">
+                            <option value="all">كل الفئات</option>
+                            <option value="medicines">الأدوية والعلاجات</option>
+                            <option value="skincare">العناية بالبشرة</option>
+                            <option value="haircare">العناية بالشعر</option>
+                            <option value="vitamins">الفيتامينات والمكملات</option>
+                            <option value="baby">الأم والطفل</option>
+                            <option value="devices">الأجهزة والمعدات الطبية</option>
+                        </select>
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </div>
+                    <div class="search-input-wrapper">
+                        <input type="text" id="globalSearchInput" placeholder="ابحث عن دواء، منتج عناية، أو فيتامين..."
+                            autocomplete="off">
+                        <button type="button" class="btn-clear-search" id="btnClearSearch" onclick="clearSearch()"
+                            title="مسح">
+                            <i class="fa-solid fa-xmark"></i>
+                        </button>
+                    </div>
+                    <button type="button" class="btn-search-action" onclick="executeSearch()" aria-label="بحث">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </button>
+                </div>
+
+                <!-- Instant Search Dropdown Results -->
+                <div class="search-results-dropdown" id="searchResultsDropdown">
+                    <div class="search-dropdown-header">
+                        <span>نتائج البحث الفورية</span>
+                        <span class="results-count" id="dropdownResultsCount">0 منتجات</span>
+                    </div>
+                    <div class="search-dropdown-list" id="searchDropdownList">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="header-actions">
+                <button class="btn-quick-rx" onclick="openPrescriptionModal()" title="طلب سريع للروشتة">
+                    <i class="fa-solid fa-file-prescription"></i>
+                    <span>طلب روشتة</span>
+                </button>
+
+                <button class="btn-cart-toggle" onclick="toggleCartDrawer()" title="سلة الطلبات">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span class="cart-badge" id="cartCountBadge">0</span>
+                    <span class="cart-text">الطلبات</span>
+                </button>
+
+                <!-- Mobile Menu Toggle -->
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="القائمة">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Navigation Bar -->
+        <nav class="main-navigation" id="mainNav">
+            <div class="container nav-container">
+                <ul class="nav-menu">
+                    <li class="nav-item">
+                        <a href="#home" class="nav-link active" data-section="home" onclick="switchSection('home')">
+                            <i class="fa-solid fa-house-chimney-medical"></i>
+                            الرئيسية
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#products" class="nav-link" data-section="products"
+                            onclick="switchSection('products')">
+                            <i class="fa-solid fa-pills"></i>
+                            الأدوية ومستحضرات التجميل
+                            <span class="badge-hot">عروض</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#consultations" class="nav-link" data-section="consultations"
+                            onclick="switchSection('consultations')">
+                            <i class="fa-solid fa-user-doctor"></i>
+                            حجز استشارات طبية
+                            <span class="badge-free">مجاناً</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#about" class="nav-link" data-section="about" onclick="switchSection('about')">
+                            <i class="fa-solid fa-hospital"></i>
+                            من نحن
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#contact" class="nav-link" data-section="contact" onclick="switchSection('contact')">
+                            <i class="fa-solid fa-headset"></i>
+                            اتصل بنا
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="nav-extra-info">
+                    <button type="button" class="theme-toggle" id="themeToggle" onclick="toggleTheme()"
+                        aria-label="تفعيل الوضع الليلي" aria-pressed="false">
+                        <i class="fa-solid fa-moon" aria-hidden="true"></i>
+                        <span>الوضع الليلي</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- ==================== 3. MAIN CONTENT CONTAINER ==================== -->
+    <main id="mainAppContent">
+
+        <!-- ==================== SECTION 1: HOME PAGE ==================== -->
+        <section id="section-home" class="app-section active">
+            <!-- Hero Banner -->
+            <div class="hero-section">
+                <div class="container hero-grid">
+                    <div class="hero-text-col">
+                        <div class="hero-badge">
+                            <i class="fa-solid fa-star"></i>
+                            رعاية صيدلانية بمعايير عالمية لكل أسرة
+                        </div>
+                        <h1 class="hero-title">
+                            صيدليات <span class="text-highlight">العوضي</span><br>
+                            شريكك الموثوق للصحة والجمال
+                        </h1>
+                        <p class="hero-desc">
+                            نوفر لك أحدث الأدوية المعتمدة ومستحضرات التجميل الأصلية 100%، مع خدمة التوصيل الدوائي الآمن
+                            على مدار الساعة واستشارات صيدلانية متخصصة لحمايتك ورعايتك.
+                        </p>
+                        <div class="hero-actions">
+                            <button class="btn btn-primary" onclick="switchSection('products')">
+                                <i class="fa-solid fa-basket-shopping"></i>
+                                تصفح الأدوية والتجميل
+                            </button>
+                            <button class="btn btn-outline" onclick="switchSection('consultations')">
+                                <i class="fa-solid fa-stethoscope"></i>
+                                احجز استشارة مجانية
+                            </button>
+                        </div>
+
+                        <div class="hero-trust-points">
+                            <div class="trust-item">
+                                <i class="fa-solid fa-circle-check"></i>
+                                <span>أدوية أصلية 100%</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="fa-solid fa-clock"></i>
+                                <span>خدمة 24/7 طوال الأسبوع</span>
+                            </div>
+                            <div class="trust-item">
+                                <i class="fa-solid fa-motorcycle"></i>
+                                <span>توصيل سريع</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="hero-visual-col">
+                        <div class="hero-card-visual">
+                            <div class="floating-promo-card promo-top">
+                                <div class="promo-icon"><i class="fa-solid fa-percent"></i></div>
+                                <div>
+                                    <h4>خصم يصل حتى 50%</h4>
+                                    <p>على باقات العناية بالبشرة والشعر</p>
+                                </div>
+                            </div>
+                            <div class="hero-image-placeholder">
+                                <div class="pharmacy-illustration">
+                                    <i class="fa-solid fa-prescription-bottle-medical main-icon"></i>
+                                    <div class="pulse-ring ring-1"></div>
+                                    <div class="pulse-ring ring-2"></div>
+                                </div>
+                            </div>
+                            <div class="floating-promo-card promo-bottom" onclick="openPrescriptionModal()">
+                                <div class="promo-icon rx-icon"><i class="fa-solid fa-camera"></i></div>
+                                <div>
+                                    <h4>عندك روشتة؟</h4>
+                                    <p>صورها وهنوصلهالك فوراً لباب بيتك</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Stats Bar -->
+            <div class="stats-section">
+                <div class="container stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
+                        <div class="stat-num">+50,000</div>
+                        <div class="stat-label">عميل يثق في خدماتنا</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-box-tissue"></i></div>
+                        <div class="stat-num">+15,000</div>
+                        <div class="stat-label">صنف دوائي وتجميلي متوفر</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                        <div class="stat-num">24/7</div>
+                        <div class="stat-label">ساعات عمل مستمرة ودون انقطاع</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i class="fa-solid fa-map-location-dot"></i></div>
+                        <div class="stat-num">وقريبا في جميع المحافظات</div>
+                        <div class="stat-label">تغطية شاملة للتوصيل المنزلي</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Our Contributions & Social Impact -->
+            <div class="contributions-section">
+                <div class="container">
+                    <div class="section-heading text-center">
+                        <span class="sub-title">مسؤوليتنا نحو المجتمع المصري</span>
+                        <h2 class="main-title">مساهمات ورؤية صيدليات العوضي</h2>
+                        <p class="section-lead">نؤمن في صيدليات العوضي أن رسالتنا تتجاوز صرف الدواء؛ نحن نبني مجتمعاً
+                            صحياً ينعم بالحياة الأفضل من خلال مبادرات خدمية ومجتمعية مستمرة.</p>
+                    </div>
+
+                    <div class="contributions-grid">
+                        <div class="contribution-card">
+                            <div class="c-icon"><i class="fa-solid fa-heart-circle-check"></i></div>
+                            <h3>مبادرة رعاية الأمراض المزمنة</h3>
+                            <p>توفير ملفات علاجية خاصة لمرضى السكر والضغط والقلب، مع تذكير دوري بمواعيد تجديد العلاج
+                                وفحوصات مجانية لقياس الضغط والسكر بكافة فروعنا.</p>
+                        </div>
+                        <div class="contribution-card">
+                            <div class="c-icon"><i class="fa-solid fa-truck-medical"></i></div>
+                            <h3>القوافل الطبية والتوعية الصحية</h3>
+                            <p>تنظيم قوافل توعوية دورية في مختلف القرى والمحافظات للتثقيف الدوائي، وتجنب الاستخدام
+                             الخاطئ للأدوية</p>
+                        </div>
+                        <div class="contribution-card">
+                            <div class="c-icon"><i class="fa-solid fa-graduation-cap"></i></div>
+                            <h3>أكاديمية العوضي لتدريب الصيادلة</h3>
+                            <p>برامج تدريبية وتأهيلية مكثفة لشباب الصيادلة وأطقم الرعاية لضمان تقديم أحدث المعلومات
+                                الدوائية والإرشاد السريري وفق أعلى المعايير الدولية.</p>
+                        </div>
+                        <div class="contribution-card">
+                            <div class="c-icon"><i class="fa-solid fa-snowflake"></i></div>
+                            <h3>الأمان الدوائي</h3>
+                            <p>نظام تخزين ونقل مبرد متطور يضمن وصول اللقاحات والأنسولين والأدوية الحساسة بكامل فاعليتها
+                                إلى باب منزل المريض.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Categories Cards -->
+            <div class="categories-section">
+                <div class="container">
+                    <div class="section-heading">
+                        <div class="heading-flex">
+                            <div>
+                                <span class="sub-title">تسوق حسب احتياجك</span>
+                                <h2 class="main-title">أبرز فئات الأدوية ومستحضرات التجميل</h2>
+                            </div>
+                            <button class="btn btn-link" onclick="switchSection('products')">
+                                عرض جميع الفئات <i class="fa-solid fa-arrow-left"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="categories-grid">
+                        <div class="category-card" onclick="filterBySpecificCategory('medicines')">
+                            <div class="cat-icon-wrap"><i class="fa-solid fa-capsules"></i></div>
+                            <h3>الأدوية والعلاجات</h3>
+                            <p>أدوية القلب، السكر، المسكنات، والمضادات</p>
+                            <span class="cat-link">تصفح الآن <i class="fa-solid fa-chevron-left"></i></span>
+                        </div>
+                        <div class="category-card" onclick="filterBySpecificCategory('skincare')">
+                            <div class="cat-icon-wrap"><i class="fa-solid fa-pump-soap"></i></div>
+                            <h3>العناية بالبشرة</h3>
+                            <p>غسولات، مرطبات، وسيرومات واقيات الشمس</p>
+                            <span class="cat-link">تصفح الآن <i class="fa-solid fa-chevron-left"></i></span>
+                        </div>
+                        <div class="category-card" onclick="filterBySpecificCategory('haircare')">
+                            <div class="cat-icon-wrap"><i class="fa-solid fa-spa"></i></div>
+                            <h3>العناية بالشعر</h3>
+                            <p>علاجات تساقط الشعر، شامبوهات وزيوت أصلية</p>
+                            <span class="cat-link">تصفح الآن <i class="fa-solid fa-chevron-left"></i></span>
+                        </div>
+                        <div class="category-card" onclick="filterBySpecificCategory('vitamins')">
+                            <div class="cat-icon-wrap"><i class="fa-solid fa-shield-virus"></i></div>
+                            <h3>الفيتامينات والمكملات</h3>
+                            <p>مقويات المناعة، أوميجا 3، وكولاجين</p>
+                            <span class="cat-link">تصفح الآن <i class="fa-solid fa-chevron-left"></i></span>
+                        </div>
+                        <div class="category-card" onclick="filterBySpecificCategory('baby')">
+                            <div class="cat-icon-wrap"><i class="fa-solid fa-baby-carriage"></i></div>
+                            <h3>الأم والطفل</h3>
+                            <p>ألبان الأطفال، الحفاضات، وعناية حديثي الولادة</p>
+                            <span class="cat-link">تصفح الآن <i class="fa-solid fa-chevron-left"></i></span>
+                        </div>
+                        <div class="category-card" onclick="filterBySpecificCategory('devices')">
+                            <div class="cat-icon-wrap"><i class="fa-solid fa-gauge-high"></i></div>
+                            <h3>الأجهزة الطبية</h3>
+                            <p>أجهزة قياس الضغط والسكر والحرارة</p>
+                            <span class="cat-link">تصفح الآن <i class="fa-solid fa-chevron-left"></i></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Prescription Order Promo Banner -->
+            <div class="prescription-cta-banner">
+                <div class="container rx-banner-inner">
+                    <div class="rx-banner-text">
+                        <h2>طلب وحجز دوائك أصبح أسهل من أي وقت مضى!</h2>
+                        <p>ارفع صورة الروشتة أو اكتب أسماء الأدوية المطلوبة، واختر طريقة الاستلام سواء بالتوصيل للمنزل
+                            أو الاستلام من أقرب فرع لصيدليات العوضي.</p>
+                    </div>
+                    <div class="rx-banner-btn">
+                        <button class="btn btn-gold btn-lg" onclick="openPrescriptionModal()">
+                            <i class="fa-solid fa-camera"></i>
+                            احجز وصرف روشتتك الآن
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 2: MEDICINES & COSMETICS ==================== -->
+        <section id="section-products" class="app-section">
+            <div class="container section-container">
+                <!-- Section Header -->
+                <div class="section-heading">
+                    <span class="sub-title">دليلك الكامل للأدوية والتجميل</span>
+                    <h2 class="main-title">الأدوية ومستحضرات التجميل</h2>
+                    <p class="section-lead">تصفح تشكيلتنا الواسعة من الأدوية المسجلة لدى هيئة الدواء المصرية وأرقى
+                        مستحضرات التجميل العالمية.</p>
+                </div>
+
+                <!-- Interactive Filter Navigation with Hover Subcategories -->
+                <div class="nahdi-category-nav">
+                    <!-- All -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill active" data-category="all" onclick="filterProductsByCategory('all')">
+                            <i class="fa-solid fa-border-all"></i>
+                            <span>الكل</span>
+                        </button>
+                    </div>
+
+                    <!-- Medicines -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="medicines"
+                            onclick="filterProductsByCategory('medicines')">
+                            <i class="fa-solid fa-pills"></i>
+                            <span>الأدوية والعلاجات</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-pills"></i> فئات الأدوية التخصصية</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'أدوية القلب وضغط الدم', 'ضغط')">
+                                    <i class="fa-solid fa-heart-pulse"></i>
+                                    <div>
+                                        <strong>أدوية القلب وضغط الدم</strong>
+                                        <span>كونكور، موسعات الشرايين، والقلب</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'المضادات الحيوية والمسكنات', 'مسكن')">
+                                    <i class="fa-solid fa-capsules"></i>
+                                    <div>
+                                        <strong>المضادات الحيوية والمسكنات</strong>
+                                        <span>بنادول إكسترا، أوجمنتين 1 جم</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'أدوية السكر والأنسولين', 'سكر')">
+                                    <i class="fa-solid fa-syringe"></i>
+                                    <div>
+                                        <strong>أدوية السكر والأنسولين</strong>
+                                        <span>منظمات السكر، والأنسولين المبرد</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'نزلات البرد والاحتقان', 'استحلاب')">
+                                    <i class="fa-solid fa-head-side-cough"></i>
+                                    <div>
+                                        <strong>البرد والأنفلونزا والحلق</strong>
+                                        <span>ستربسلس بالعسل، مضادات الاحتقان</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skincare -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="skincare"
+                            onclick="filterProductsByCategory('skincare')">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>العناية بالبشرة</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-wand-magic-sparkles"></i> منتجات العناية بالبشرة</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'غسولات ومنظفات الوجه', 'غسول')">
+                                    <i class="fa-solid fa-pump-soap"></i>
+                                    <div>
+                                        <strong>غسولات ومنظفات الوجه</strong>
+                                        <span>سيرافيه، بيوديرما ميسيلار سينسيبيو</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'واقيات الشمس والحماية SPF50+', 'واقي شمس')">
+                                    <i class="fa-solid fa-sun"></i>
+                                    <div>
+                                        <strong>واقيات الشمس (SPF50+)</strong>
+                                        <span>لاروش بوزيه أنثيليوس، سوائل حماية</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'كريمات وسيرومات الترطيب', 'مرطب')">
+                                    <i class="fa-solid fa-pump-medical"></i>
+                                    <div>
+                                        <strong>الترطيب وسيرومات النضارة</strong>
+                                        <span>بيبانثين، هيالورونيك وفيتامين C</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'مزيلات المكياج والتنظيف العميق', 'ميسيلار')">
+                                    <i class="fa-solid fa-sparkles"></i>
+                                    <div>
+                                        <strong>تنظيف البشرة ومزيل المكياج</strong>
+                                        <span>ماء ميسيلار وتونر مهدئ للبشرة</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Haircare -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="haircare"
+                            onclick="filterProductsByCategory('haircare')">
+                            <i class="fa-solid fa-feather"></i>
+                            <span>العناية بالشعر</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-feather"></i> أقسام العناية بالشعر</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('haircare', 'علاجات تساقط الشعر والإنبات', 'تساقط')">
+                                    <i class="fa-solid fa-feather-pointed"></i>
+                                    <div>
+                                        <strong>علاج تساقط الشعر والإنبات</strong>
+                                        <span>سيروم دكتور ميركل، محفزات النمو</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('haircare', 'شامبو علاج القشرة والفروة', 'قشرة')">
+                                    <i class="fa-solid fa-spa"></i>
+                                    <div>
+                                        <strong>علاج القشرة وحكة الفروة</strong>
+                                        <span>فيشي ديركوس الطبي، شامبو ضد القشرة</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('haircare', 'الشامبو والبلسم المغذي', 'شامبو')">
+                                    <i class="fa-solid fa-bottle-droplet"></i>
+                                    <div>
+                                        <strong>الشامبو والبلسم المغذي</strong>
+                                        <span>تركيبات خالية من السلفات والبارابين</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vitamins -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="vitamins"
+                            onclick="filterProductsByCategory('vitamins')">
+                            <i class="fa-solid fa-apple-whole"></i>
+                            <span>الفيتامينات والمناعة</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-apple-whole"></i> الفيتامينات والمكملات</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('vitamins', 'مقويات المناعة والمالتي فيتامين', 'سنتروم')">
+                                    <i class="fa-solid fa-shield-virus"></i>
+                                    <div>
+                                        <strong>مقويات المناعة والمالتي فيتامين</strong>
+                                        <span>سنتروم لوتين، فيتامين سي وزنك</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('vitamins', 'أوميجا 3 وزيوت السمك', 'أوميجا')">
+                                    <i class="fa-solid fa-fish"></i>
+                                    <div>
+                                        <strong>أوميجا 3 وزيت السمك</strong>
+                                        <span>أوميجا 3 بلس لصحة القلب والذاكرة</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mother & Baby -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="baby" onclick="filterProductsByCategory('baby')">
+                            <i class="fa-solid fa-baby"></i>
+                            <span>الأم والطفل</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-baby"></i> مستلزمات الأم والطفل</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('baby', 'حفاضات وعناية الطفل', 'حفاض')">
+                                    <i class="fa-solid fa-baby"></i>
+                                    <div>
+                                        <strong>حفاضات ومناديل الأطفال</strong>
+                                        <span>بامبرز بريميوم كير، مناديل مبللة</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('baby', 'ألبان وأغذية الرضع', 'حليب')">
+                                    <i class="fa-solid fa-baby-carriage"></i>
+                                    <div>
+                                        <strong>ألبان وأغذية الرضع</strong>
+                                        <span>أبتاميل 1 للرضع، أغذية النمو</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Devices -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="devices" onclick="filterProductsByCategory('devices')">
+                            <i class="fa-solid fa-stethoscope"></i>
+                            <span>الأجهزة والمستلزمات</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-stethoscope"></i> الأجهزة الطبية المنزلية</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('devices', 'أجهزة وشرائط قياس السكر', 'سكر')">
+                                    <i class="fa-solid fa-gauge-high"></i>
+                                    <div>
+                                        <strong>أجهزة وشرائط قياس السكر</strong>
+                                        <span>أكوا تشيك إنستانت + 50 شريط</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('devices', 'أجهزة قياس ضغط الدم الديجيتال', 'ضغط')">
+                                    <i class="fa-solid fa-heart-circle-bolt"></i>
+                                    <div>
+                                        <strong>أجهزة قياس ضغط الدم</strong>
+                                        <span>بيورير BM28 ألماني أصلي ديجيتال</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Subcategory Filter Indicator Badge -->
+                <div class="active-subcat-bar" id="activeSubcatBar" style="display: none;">
+                    <div class="subcat-filter-info">
+                        <i class="fa-solid fa-filter"></i>
+                        <span>تصفية حسب:</span>
+                        <strong id="activeSubcatTitle">-</strong>
+                    </div>
+                    <button type="button" class="btn-clear-subcat" onclick="clearSubcategoryFilter()"
+                        title="إلغاء التصفية وعرض الكل">
+                        <span>إلغاء التصفية</span>
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Catalog Toolbar (Search & Sort) -->
+                <div class="catalog-toolbar">
+                    <div class="catalog-search-inline">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="text" id="inlineProductSearch" placeholder="بحث سريع في قائمة المنتجات الحالية..."
+                            oninput="handleInlineSearch(this.value)">
+                    </div>
+                    <div class="catalog-sort">
+                        <label for="productSortSelect">ترتيب حسب:</label>
+                        <select id="productSortSelect" onchange="handleProductSort(this.value)">
+                            <option value="featured">الأكثر طلباً وتوصية</option>
+                            <option value="price-asc">السعر: من الأقل للأعلى</option>
+                            <option value="price-desc">السعر: من الأعلى للأقل</option>
+                            <option value="name">الاسم الأبجدي</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="products-grid" id="productsCatalogGrid">
+                    <!-- Dynamic Product Cards will be injected by JS -->
+                </div>
+
+                <!-- Empty State (Hidden by default) -->
+                <div class="empty-products-state" id="emptyProductsState" style="display: none;">
+                    <i class="fa-solid fa-box-open"></i>
+                    <h3>لم نعثر على منتجات مطابقة لبحثك</h3>
+                    <p>يمكنك كتابة اسم الدواء في نموذج حجز الأدوية وسيقوم فريق الصيدلية بتوفيره لك فوراً.</p>
+                    <button class="btn btn-primary" onclick="openPrescriptionModal()">طلب دواء غير موجود</button>
+                </div>
+
+                <!-- Comprehensive Medicine Booking & Delivery Form Section -->
+                <div class="medicine-booking-card" id="bookingFormContainer">
+                    <div class="booking-card-header">
+                        <div class="badge-tag">خدمة التوصيل والاستلام المباشر</div>
+                        <h3><i class="fa-solid fa-prescription-bottle-medical"></i> نموذج حجز وطلب الأدوية والروشتات
+                        </h3>
+                        <p>سواء كان لديك دواء محدد أو ترغب في صرف روشتة كاملة، املأ البيانات التالية وسيتواصل معك
+                            الصيدلي فوراً.</p>
+                    </div>
+
+                    <form id="medicineOrderForm" onsubmit="handleMedicineOrderSubmit(event)">
+                        <div class="form-grid">
+                            <!-- Field 1: Medicine Name or Prescription -->
+                            <div class="form-group col-12">
+                                <label for="orderMedicineNames">
+                                    <i class="fa-solid fa-pen-to-square"></i> أسماء الأدوية أو المستحضرات المطلوبة <span
+                                        class="required">*</span>
+                                </label>
+                                <textarea id="orderMedicineNames" rows="3"
+                                    placeholder="اكتب هنا أسماء الأدوية والتركيزات المطلوبة أو ملاحظاتك (مثال: بنادول إكسترا، كونكور 5 مجم، غسول سيرافيه...)"
+                                    required></textarea>
+                            </div>
+
+                            <!-- Field 2: Prescription Upload Simulation -->
+                            <div class="form-group col-12">
+                                <label>
+                                    <i class="fa-solid fa-cloud-arrow-up"></i> أو ارفع صورة الروشتة الطبية (اختياري)
+                                </label>
+                                <div class="prescription-upload-box" id="rxUploadBox">
+                                    <input type="file" id="rxFileInput" accept="image/*,.pdf"
+                                        onchange="handleFileSelect(event)">
+                                    <div class="upload-dropzone-content">
+                                        <i class="fa-solid fa-image"></i>
+                                        <p id="rxFileLabel">اضغط هنا لرفع صورة الروشتة أو اسحب الملف</p>
+                                        <span>يدعم صور JPG, PNG أو ملفات PDF</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Field 3: Patient Name -->
+                            <div class="form-group col-6">
+                                <label for="orderPatientName">
+                                    <i class="fa-solid fa-user"></i> اسم المريض / العميل بالكامل <span
+                                        class="required">*</span>
+                                </label>
+                                <input type="text" id="orderPatientName" placeholder="الاسم ثلاثي" required>
+                            </div>
+
+                            <!-- Field 4: Egyptian Phone Number -->
+                            <div class="form-group col-6">
+                                <label for="orderPhone">
+                                    <i class="fa-solid fa-phone"></i> رقم الهاتف المحمول (مصر) <span
+                                        class="required">*</span>
+                                </label>
+                                <input type="tel" id="orderPhone" placeholder="01xxxxxxxxx" pattern="^01[0125][0-9]{8}$"
+                                    title="يرجى إدخال رقم هاتف مصري صحيح يبدأ بـ 010 أو 011 أو 012 أو 015 ومكون من 11 رقماً"
+                                    required>
+                                <small class="field-hint">مثال: 01012345678 (11 رقماً)</small>
+                            </div>
+
+                            <!-- Field 5: Delivery Method Selection (Toggle) -->
+                            <div class="form-group col-12">
+                                <label class="label-bold">
+                                    <i class="fa-solid fa-truck-ramp-box"></i> طريقة استلام الطلب <span
+                                        class="required">*</span>
+                                </label>
+                                <div class="delivery-toggle-container">
+                                    <label class="toggle-option">
+                                        <input type="radio" name="deliveryMethod" value="pickup" checked
+                                            onchange="toggleDeliveryFields(false)">
+                                        <div class="toggle-card">
+                                            <div class="toggle-icon"><i class="fa-solid fa-store"></i></div>
+                                            <div class="toggle-text">
+                                                <strong>الاستلام من الصيدلية</strong>
+                                                <span>تجهيز الطلب للاستلام الفوري من أقرب فرع</span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <label class="toggle-option">
+                                        <input type="radio" name="deliveryMethod" value="delivery"
+                                            onchange="toggleDeliveryFields(true)">
+                                        <div class="toggle-card">
+                                            <div class="toggle-icon"><i class="fa-solid fa-house-chimney-medical"></i>
+                                            </div>
+                                            <div class="toggle-text">
+                                                <strong>توصيل لباب المنزل</strong>
+                                                <span>توصيل سريع لعنوانك </span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Pickup Branch Selector (Shown when Pickup selected) -->
+                            <div class="form-group col-12" id="branchSelectorGroup">
+                                <label for="orderBranch">
+                                    <i class="fa-solid fa-location-dot"></i> اختر فرع صيدليات العوضي للاستلام منه <span
+                                        class="required">*</span>
+                                </label>
+                                <select id="orderBranch">
+                                    <option value="88df6ef9-277b-4e9b-ab99-14c0cadd9503">فرع طناح - المنصورة - الدقهلية</option>
+                                    <option value="f6644e05-4027-4a68-b472-4d681bc7459c">فرع كفر طناح - المنصورة - الدقهلية</option>
+                                </select>
+                            </div>
+
+                            <!-- Dynamic Home Delivery Address Fields (Shown when Delivery selected) -->
+                            <div class="delivery-address-wrapper col-12" id="deliveryAddressWrapper"
+                                style="display: none;">
+                                <div class="gps-main-row">
+                                    <button type="button" class="btn btn-gps" id="btnGetMainLocation"
+                                        onclick="detectUserLocation('main')">
+                                        <i class="fa-solid fa-location-crosshairs"></i>
+                                        <span>تحديد موقع التوصيل الحالي تلقائياً عبر (GPS)</span>
+                                    </button>
+                                    <span class="location-status-badge" id="mainLocationStatus"></span>
+                                    <input type="hidden" id="mainGpsCoordinates" value="">
+                                </div>
+                                <div class="address-fields-grid">
+                                    <div class="form-group col-4">
+                                        <label for="orderGov"><i class="fa-solid fa-city"></i> المحافظة <span
+                                                class="required">*</span></label>
+                                        <select id="orderGov">
+                                            <option value="القاهرة">القاهرة</option>
+                                            <option value="الجيزة">الجيزة</option>
+                                            <option value="الإسكندرية">الإسكندرية</option>
+                                            <option value="الدقهلية (المنصورة)">الدقهلية (المنصورة)</option>
+                                            <option value="القليوبية">القليوبية</option>
+                                            <option value="الشرقية">الشرقية</option>
+                                            <option value="الغربية (طنطا)">الغربية (طنطا)</option>
+                                            <option value="باقي المحافظات">باقي محافظات الجمهورية</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label for="orderCity"><i class="fa-solid fa-map-pin"></i> المنطقة / القرية <span
+                                                class="required">*</span></label>
+                                        <input type="text" id="orderCity" placeholder="مثال: طناح / كفر طناح">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label for="orderStreet"><i class="fa-solid fa-road"></i> اسم الشارع <span
+                                                class="required">*</span></label>
+                                        <input type="text" id="orderStreet" placeholder="اسم الشارع بالتفصيل">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label for="orderBuilding"><i class="fa-solid fa-building"></i> رقم العمارة
+                                            <span class="required">*</span></label>
+                                        <input type="text" id="orderBuilding" placeholder="رقم العمارة">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label for="orderApartment"><i class="fa-solid fa-door-open"></i> رقم الشقة
+                                            والدور</label>
+                                        <input type="text" id="orderApartment" placeholder="مثال: شقة 4 - الدور 2">
+                                    </div>
+                                    <div class="form-group col-4">
+                                        <label for="orderLandmark"><i class="fa-solid fa-map-signs"></i> علامة
+                                            مميزة</label>
+                                        <input type="text" id="orderLandmark" placeholder="بجوار مسجد / مدرسة...">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Additional Notes -->
+                            <div class="form-group col-12">
+                                <label for="orderNotes"><i class="fa-solid fa-comment-medical"></i> ملاحظات إضافية
+                                    للصيدلي (اختياري)</label>
+                                <input type="text" id="orderNotes"
+                                    placeholder="مثال: يرجى الاتصال قبل التحرك، أو التأكد من توفر بديل معين...">
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="form-group col-12 text-center">
+                                <button type="submit" class="btn btn-primary btn-xl">
+                                    <i class="fa-solid fa-paper-plane"></i>
+                                    تأكيد وإرسال طلب الأدوية
+                                </button>
+                                <p class="privacy-notice"><i class="fa-solid fa-lock"></i> جميع بياناتك الصحية تعامل
+                                    بسرية تامة ومحمية بموجب بروتوكولات الأمان الطبي.</p>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 3: MEDICAL CONSULTATIONS & CLINIC BOOKING ==================== -->
+        <section id="section-consultations" class="app-section">
+            <div class="container section-container">
+                <div class="section-heading text-center">
+                    <span class="sub-title">رعاية تخصصية وعيادات متكاملة</span>
+                    <h2 class="main-title">حجز العيادات والاستشارات الطبية</h2>
+                    <p class="section-lead">نخبة من كبار الأطباء الاستشاريين والصيادلة الإكلينيكيين في خدمتكم. احجز كشفك
+                        في العيادة التخصصية أو اطلب استشارة صيدلانية فورية.</p>
+                </div>
+
+                <!-- Booking Mode Tabs (Clinic Appointment vs Phone Consultation) -->
+                <div class="consultation-mode-tabs">
+                    <button type="button" class="mode-tab-btn active" id="tabBtnClinic"
+                        onclick="switchConsultationMode('clinic')">
+                        <i class="fa-solid fa-hospital-user"></i>
+                        <span>حجز موعد بالعيادات التخصصية</span>
+                    </button>
+                    <button type="button" class="mode-tab-btn" id="tabBtnRemote"
+                        onclick="switchConsultationMode('remote')">
+                        <i class="fa-solid fa-headset"></i>
+                        <span>استشارة صيدلانية هاتفية / واتساب (مجاناً)</span>
+                    </button>
+                </div>
+
+                <!-- ==================== VIEW 1: CLINIC APPOINTMENTS & DOCTORS DIRECTORY ==================== -->
+                <div id="clinicBookingView" class="consultation-view-block">
+                    <!-- Doctors Directory Section -->
+                    <div class="doctors-directory-header">
+                        <div class="dir-title">
+                            <i class="fa-solid fa-user-doctor"></i>
+                            <div>
+                                <h3>قائمة الأطباء الاستشاريين والمواعيد المتاحة</h3>
+                                <p>اختر الطبيب المناسب للاطلاع على مواعيد العيادة والحجز الفوري:</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Doctors Cards Grid -->
+                    <div class="doctors-grid">
+                        <!-- Doctor 1 -->
+                        <div class="doctor-card">
+                            <div class="doctor-card-top">
+                                <div class="doctor-avatar">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div class="doctor-meta">
+                                    <span class="doc-specialty-badge">باطنة وسكر وغدد صماء</span>
+                                    <h4 class="doc-name">أ.د. شريف عبد الرحمن</h4>
+                                    <p class="doc-title">أستاذ واستشاري أمراض الباطنة والسكري - كلية الطب</p>
+                                    <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> فرع طناح</span>
+                                </div>
+                            </div>
+                            <div class="doctor-schedule-box">
+                                <h5><i class="fa-solid fa-calendar-days"></i> المواعيد الأسبوعية المتاحة:</h5>
+                                <div class="schedule-slots-pills">
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> السبت 06:00 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الإثنين 07:30 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الأربعاء 05:00 م</span>
+                                </div>
+                            </div>
+                            <div class="doctor-card-footer">
+                                <div class="doc-fee">
+                                    <span>قيمة الكشف:</span>
+                                    <strong>250 ج.م</strong>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="selectDoctorForBooking('أ.د. شريف عبد الرحمن', 'باطنة وسكر وغدد صماء', 'فرع طناح - المنصورة - الدقهلية', ['السبت 06:00 م', 'الإثنين 07:30 م', 'الأربعاء 05:00 م'])">
+                                    <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Doctor 2 -->
+                        <div class="doctor-card">
+                            <div class="doctor-card-top">
+                                <div class="doctor-avatar">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div class="doctor-meta">
+                                    <span class="doc-specialty-badge">أمراض جلدية وتجميل وليزر</span>
+                                    <h4 class="doc-name">د. مي مجدي</h4>
+                                    <p class="doc-title">استشارية الجلدية والعلاج بالليزر وروتين العناية بالبشرة والشعر
+                                    </p>
+                                    <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> فرع كفر طناح</span>
+                                </div>
+                            </div>
+                            <div class="doctor-schedule-box">
+                                <h5><i class="fa-solid fa-calendar-days"></i> المواعيد الأسبوعية المتاحة:</h5>
+                                <div class="schedule-slots-pills">
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الأحد 04:00 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الثلاثاء 06:30 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الخميس 05:00 م</span>
+                                </div>
+                            </div>
+                            <div class="doctor-card-footer">
+                                <div class="doc-fee">
+                                    <span>قيمة الكشف:</span>
+                                    <strong>300 ج.م</strong>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="selectDoctorForBooking('د. مي مجدي', 'أمراض جلدية وتجميل وليزر', 'فرع كفر طناح', ['الأحد 04:00 م', 'الثلاثاء 06:30 م', 'الخميس 05:00 م'])">
+                                    <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Doctor 3 -->
+                        <div class="doctor-card">
+                            <div class="doctor-card-top">
+                                <div class="doctor-avatar">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div class="doctor-meta">
+                                    <span class="doc-specialty-badge">طب الأطفال وحديثي الولادة</span>
+                                    <h4 class="doc-name">د. حسام الدين فاروق</h4>
+                                    <p class="doc-title">استشاري طب الأطفال والتغذية العلاجية ومتابعة النمو</p>
+                                    <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> فرع طناح</span>
+                                </div>
+                            </div>
+                            <div class="doctor-schedule-box">
+                                <h5><i class="fa-solid fa-calendar-days"></i> المواعيد الأسبوعية المتاحة:</h5>
+                                <div class="schedule-slots-pills">
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> السبت 02:00 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الإثنين 03:30 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الأربعاء 02:00 م</span>
+                                </div>
+                            </div>
+                            <div class="doctor-card-footer">
+                                <div class="doc-fee">
+                                    <span>قيمة الكشف:</span>
+                                    <strong>220 ج.م</strong>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="selectDoctorForBooking('د. حسام الدين فاروق', 'طب الأطفال وحديثي الولادة', 'فرع طناح', ['السبت 02:00 م', 'الإثنين 03:30 م', 'الأربعاء 02:00 م'])">
+                                    <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Doctor 4 -->
+                        <div class="doctor-card">
+                            <div class="doctor-card-top">
+                                <div class="doctor-avatar">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div class="doctor-meta">
+                                    <span class="doc-specialty-badge">تغذية علاجية وسمنة ونحافة</span>
+                                    <h4 class="doc-name">د. ندى الشريف</h4>
+                                    <p class="doc-title">أخصائية التغذية العلاجية وعلاج السمنة والنحافة ونمط الحياة
+                                        الصحي</p>
+                                    <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> فرع كفر طناح</span>
+                                </div>
+                            </div>
+                            <div class="doctor-schedule-box">
+                                <h5><i class="fa-solid fa-calendar-days"></i> المواعيد الأسبوعية المتاحة:</h5>
+                                <div class="schedule-slots-pills">
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الإثنين 05:00 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الخميس 07:00 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الجمعة 04:00 م</span>
+                                </div>
+                            </div>
+                            <div class="doctor-card-footer">
+                                <div class="doc-fee">
+                                    <span>قيمة الكشف:</span>
+                                    <strong>200 ج.م</strong>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="selectDoctorForBooking('د. ندى الشريف', 'تغذية علاجية وسمنة ونحافة', 'فرع كفر طناح', ['الإثنين 05:00 م', 'الخميس 07:00 م', 'الجمعة 04:00 م'])">
+                                    <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Doctor 5 -->
+                        <div class="doctor-card">
+                            <div class="doctor-card-top">
+                                <div class="doctor-avatar">
+                                    <i class="fa-solid fa-user-doctor"></i>
+                                </div>
+                                <div class="doctor-meta">
+                                    <span class="doc-specialty-badge">جراحة العظام والمفاصل</span>
+                                    <h4 class="doc-name">د. طارق مراد</h4>
+                                    <p class="doc-title">استشاري جراحة العظام والمفاصل وإصابات الملاعب</p>
+                                    <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> فرع طناح</span>
+                                </div>
+                            </div>
+                            <div class="doctor-schedule-box">
+                                <h5><i class="fa-solid fa-calendar-days"></i> المواعيد الأسبوعية المتاحة:</h5>
+                                <div class="schedule-slots-pills">
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> السبت 05:00 م</span>
+                                    <span class="slot-pill"><i class="fa-solid fa-clock"></i> الثلاثاء 07:00 م</span>
+                                </div>
+                            </div>
+                            <div class="doctor-card-footer">
+                                <div class="doc-fee">
+                                    <span>قيمة الكشف:</span>
+                                    <strong>280 ج.م</strong>
+                                </div>
+                                <button type="button" class="btn btn-primary btn-sm"
+                                    onclick="selectDoctorForBooking('د. طارق مراد', 'جراحة العظام والمفاصل', 'فرع طناح', ['السبت 05:00 م', 'الثلاثاء 07:00 م'])">
+                                    <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Clinic In-Person Booking Form Card -->
+                    <div class="clinic-form-card" id="clinicBookingFormCard">
+                        <div class="clinic-form-header">
+                            <div class="badge-clinic-tag"><i class="fa-solid fa-hospital"></i> حجز كشف عيادة</div>
+                            <h3>استمارة تثبيت وتأكيد موعد العيادة</h3>
+                            <p>حدد بيانات المريض وتأكيد الموعد المناسب لضمان أسبقية الحضور في العيادة:</p>
+                        </div>
+
+                        <form id="clinicAppointmentForm" onsubmit="handleClinicAppointmentSubmit(event)">
+                            <div class="form-grid">
+                                <!-- Doctor Name -->
+                                <div class="form-group col-6">
+                                    <label for="clinicDocSelect"><i class="fa-solid fa-user-doctor"></i> اسم الطبيب
+                                        المعالج <span class="required">*</span></label>
+                                    <select id="clinicDocSelect" onchange="onDoctorSelectChange(this.value)" required>
+                                        <!-- Injected by JS from DOCTORS_DATA, filtered by selected branch -->
+                                    </select>
+                                </div>
+
+                                <!-- Clinic Branch -->
+                                <div class="form-group col-6">
+                                    <label for="clinicBranchInput"><i class="fa-solid fa-location-dot"></i> فرع العيادة
+                                        <span class="required">*</span></label>
+                                    <select id="clinicBranchInput" onchange="onBranchSelectChange(this.value)" required>
+                                        <!-- Injected by JS from BRANCHES_DATA -->
+                                    </select>
+                                </div>
+
+                                <!-- Available Slots Selector -->
+                                <div class="form-group col-12">
+                                    <label class="label-bold"><i class="fa-solid fa-clock"></i> اختر الموعد المتاح
+                                        المناسب لك <span class="required">*</span></label>
+                                    <div class="interactive-time-slots" id="interactiveTimeSlotsContainer">
+                                        <!-- Injected by JS -->
+                                    </div>
+                                    <input type="hidden" id="selectedTimeSlotInput" value="" required>
+                                </div>
+
+                                <!-- Patient Name -->
+                                <div class="form-group col-6">
+                                    <label for="clinicPatientName"><i class="fa-solid fa-user"></i> اسم المريض
+                                        <span class="required">*</span></label>
+                                    <input type="text" id="clinicPatientName" placeholder="الاسم ثلاثي" required>
+                                </div>
+
+                                <!-- Egyptian Phone -->
+                                <div class="form-group col-6">
+                                    <label for="clinicPatientPhone"><i class="fa-solid fa-phone"></i> رقم الهاتف المحمول
+                                        (مصر) <span class="required">*</span></label>
+                                    <input type="tel" id="clinicPatientPhone" placeholder="01xxxxxxxxx"
+                                        pattern="^01[0125][0-9]{8}$" title="يرجى إدخال رقم هاتف مصري صحيح (11 رقماً)"
+                                        required>
+                                </div>
+
+                                <!-- Medical notes -->
+                                <div class="form-group col-12">
+                                    <label for="clinicNotes"><i class="fa-solid fa-notes-medical"></i> سبب الزيارة أو
+                                        ملاحظات طبية (اختياري)</label>
+                                    <input type="text" id="clinicNotes"
+                                        placeholder="مثال: كشف لأول مرة، متابعة تحاليل السكر، استشارة حساسية جلدية...">
+                                </div>
+
+                                <!-- Submit -->
+                                <div class="form-group col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-xl">
+                                        <i class="fa-solid fa-ticket"></i>
+                                        تأكيد حجز كشف العيادة واستلام التذكرة
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- ==================== VIEW 2: REMOTE FREE CONSULTATION FORM ==================== -->
+                <div id="remoteBookingView" class="consultation-view-block" style="display: none;">
+                    <!-- Consultation Types Cards -->
+                    <div class="consultation-types-grid">
+                        <div class="c-type-card" onclick="selectConsultationType('استشارة دوائية وتعارضات الأدوية')">
+                            <div class="c-type-icon"><i class="fa-solid fa-capsules"></i></div>
+                            <h3>استشارات دوائية وتعارضات</h3>
+                            <p>مراجعة الجرعات، التأكد من عدم وجود تعارض بين أدويتك، وطرق الاستخدام الصحيحة.</p>
+                        </div>
+                        <div class="c-type-card" onclick="selectConsultationType('روتين العناية بالبشرة والشعر')">
+                            <div class="c-type-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                            <h3>روتين البشرة والشعر</h3>
+                            <p>تحديد نوع بشرتك واختيار المنتجات المناسبة لحب الشباب، التفتيح، أو تساقط الشعر.</p>
+                        </div>
+                        <div class="c-type-card" onclick="selectConsultationType('متابعة أدوية السكر والضغط والقلب')">
+                            <div class="c-type-icon"><i class="fa-solid fa-heart-pulse"></i></div>
+                            <h3>متابعة الأمراض المزمنة</h3>
+                            <p>إرشادات خاصة لمرضى السكر والضغط وكبار السن لمتابعة القياسات اليومية ونمط الحياة.</p>
+                        </div>
+                        <div class="c-type-card" onclick="selectConsultationType('تغذية علاجية ومكملات غذائية')">
+                            <div class="c-type-icon"><i class="fa-solid fa-apple-whole"></i></div>
+                            <h3>تغذية ومكملات غذائية</h3>
+                            <p>استشارات الفيتامينات، مكملات الرياضيين، والتغذية الصحية لجميع الفئات العمرية.</p>
+                        </div>
+                    </div>
+
+                    <!-- Remote Booking Form Card -->
+                    <div class="consultation-form-card">
+                        <div class="consultation-card-header">
+                            <div class="badge-free-large"><i class="fa-solid fa-gift"></i> استشارة صيدلانية مجانية 100%
+                            </div>
+                            <h3>طلب موعد استشارة هاتفية / واتساب</h3>
+                            <p>املأ النموذج وسيقوم الصيدلي الاستشاري بالتواصل معك هاتفياً في الموعد المفضل لديك.</p>
+                        </div>
+
+                        <form id="consultationBookingForm" onsubmit="handleConsultationSubmit(event)">
+                            <div class="form-grid">
+                                <div class="form-group col-6">
+                                    <label for="consName"><i class="fa-solid fa-user"></i> اسم المستشير بالكامل <span
+                                            class="required">*</span></label>
+                                    <input type="text" id="consName" placeholder="الاسم ثلاثي" required>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="consPhone"><i class="fa-solid fa-phone"></i> رقم الهاتف المحمول (مصر)
+                                        <span class="required">*</span></label>
+                                    <input type="tel" id="consPhone" placeholder="01xxxxxxxxx"
+                                        pattern="^01[0125][0-9]{8}$"
+                                        title="يرجى إدخال رقم هاتف مصري صحيح مكون من 11 رقماً" required>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="consType"><i class="fa-solid fa-clipboard-list"></i> نوع الاستشارة <span
+                                            class="required">*</span></label>
+                                    <select id="consType" required>
+                                        <option value="">-- اختر نوع الاستشارة --</option>
+                                        <option value="استشارة دوائية وتعارضات الأدوية">استشارة دوائية وتعارضات الأدوية
+                                        </option>
+                                        <option value="روتين العناية بالبشرة والشعر">روتين العناية بالبشرة والشعر
+                                        </option>
+                                        <option value="متابعة أدوية السكر والضغط والقلب">متابعة أدوية السكر والضغط
+                                            والقلب</option>
+                                        <option value="تغذية علاجية ومكملات غذائية">تغذية علاجية ومكملات غذائية</option>
+                                        <option value="استشارة صحة الأم والطفل">استشارة صحة الأم والطفل</option>
+                                        <option value="أخرى">استشارة طبية عامة أخرى</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-6">
+                                    <label for="consTime"><i class="fa-solid fa-clock"></i> الموعد المفضل للتواصل <span
+                                            class="required">*</span></label>
+                                    <select id="consTime" required>
+                                        <option value="الفترة الصباحية (10:00 ص - 02:00 م)">الفترة الصباحية (10:00 ص -
+                                            02:00 م)</option>
+                                        <option value="فترة ما بعد الظهر (02:00 م - 06:00 م)">فترة ما بعد الظهر (02:00 م
+                                            - 06:00 م)</option>
+                                        <option value="الفترة المسائية (06:00 م - 11:00 م)">الفترة المسائية (06:00 م -
+                                            11:00 م)</option>
+                                        <option value="في أقرب وقت ممكن (عاجل)">في أقرب وقت ممكن (طوارئ/عاجل)</option>
+                                    </select>
+                                </div>
+                                <div class="form-group col-12">
+                                    <label><i class="fa-solid fa-comments"></i> وسيلة التواصل المفضلة</label>
+                                    <div class="radio-group-horizontal">
+                                        <label><input type="radio" name="commChannel" value="phone" checked> مكالمة
+                                            هاتفية مباشرة</label>
+                                        <label><input type="radio" name="commChannel" value="whatsapp"> رسائل ومحادثة
+                                            واتساب</label>
+                                    </div>
+                                </div>
+                                <div class="form-group col-12">
+                                    <label for="consDetails"><i class="fa-solid fa-file-lines"></i> تفاصيل الاستشارة أو
+                                        الأعراض التي تشكو منها <span class="required">*</span></label>
+                                    <textarea id="consDetails" rows="4"
+                                        placeholder="اشرح باختصار استفسارك، الأدوية التي تتناولها حالياً، أو الأعراض التي تشعر بها..."
+                                        required></textarea>
+                                </div>
+                                <div class="form-group col-12 text-center">
+                                    <button type="submit" class="btn btn-primary btn-xl">
+                                        <i class="fa-solid fa-calendar-check"></i>
+                                        تأكيد حجز الاستشارة الطبية المجانية
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 4: ABOUT US ==================== -->
+        <section id="section-about" class="app-section">
+            <div class="container section-container">
+                <!-- Section Header -->
+                <div class="section-heading text-center">
+                    <span class="sub-title">قصتنا وهويتنا</span>
+                    <h2 class="main-title">من نحن - صيدليات العوضي</h2>
+                    <p class="section-lead">نحن صرح صيدلاني واعد يجمع بين أصالة الرعاية الصحية وأحدث تقنيات التجارة
+                        الدوائية والتجميلية في مصر.</p>
+                </div>
+
+                <!-- Story & Vision Content (Inspired by El-Ezaby Quality & Leadership) -->
+                <div class="about-story-grid">
+                    <div class="about-text-card">
+                        <div class="about-icon-header"><i class="fa-solid fa-book-medical"></i></div>
+                        <h3>قصة الانطلاق والرؤية</h3>
+                        <p>
+                            تأسست <strong>صيدليات العوضي</strong> برؤية طموحة تهدف إلى إحداث نقلة نوعية في تجربة العميل
+                            الدوائية في مصر. استلهمنا أفضل الممارسات من كبرى سلاسل الصيدليات الرائدة مثل تجربة
+                             في الريادة والموثوقية، ودمجناها مع التكنولوجيا الرقمية التفاعلية
+                            لنكون الخيار الأول والوجهة الصحية الشاملة لكل بيت مصري.
+                        </p>
+                        <p>
+                            نعمل بفلسفة "المريض أولاً"، حيث لا يقتصر دورنا على بيع المنتجات، بل نحرص على تقديم مشورة
+                            علاجية دقيقة، وتوفير كل ما يحتاجه المواطن من أدوية منقذة للحياة، مستحضرات تجميل
+                            أصلية، ومستلزمات رعاية بأسعار عادلة وتحت رقابة صارمة.
+                        </p>
+                    </div>
+
+                    <div class="about-pillars-card">
+                        <div class="about-icon-header"><i class="fa-solid fa-award"></i></div>
+                        <h3>ركائز الجودة والتميز في العوضي</h3>
+                        <ul class="pillars-list">
+                            <li>
+                                <i class="fa-solid fa-temperature-arrow-down"></i>
+                                <div>
+                                    <strong>تبريد الدوائي المعتمدة:</strong>
+                                    <span>نظام حفظ ومراقبة حرارية إلكتروني للأنسولين والأمصال لضمان الفاعلية
+                                        القصوى.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-user-graduate"></i>
+                                <div>
+                                    <strong>صيادلة ذوو كفاءة عالية:</strong>
+                                    <span>فريق صيدلي مدرب على أعلى المستويات لتقديم المشورة وتجنب التعارضات
+                                        الدوائية.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-truck-fast"></i>
+                                <div>
+                                    <strong>أسطول دليفري احترافي:</strong>
+                                    <span>توصيل فوري وآمن في أسرع وقت ممكن.</span>
+                                </div>
+                            </li>
+                            <li>
+                                <i class="fa-solid fa-stamp"></i>
+                                <div>
+                                    <strong>منتجات معتمدة 100%:</strong>
+                                    <span>لا نتعامل إلا مع الوكلاء الرسميين والشركات المعتمدة من هيئة الدواء
+                                        المصرية.</span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Values Grid -->
+                <div class="values-grid">
+                    <div class="value-item">
+                        <div class="val-icon"><i class="fa-solid fa-shield-heart"></i></div>
+                        <h4>الأمانة والنزاهة الطبية</h4>
+                        <p>صحة المريض ومصلحته العلاجية هي البوصلة الأساسية لكافة قراراتنا.</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="val-icon"><i class="fa-solid fa-bolt"></i></div>
+                        <h4>السرعة والجاهزية</h4>
+                        <p>الاستجابة الفورية لطلبات الطوارئ والأدوية الحرجة على مدار الساعة.</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="val-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
+                        <h4>المسؤولية المجتمعية</h4>
+                        <p>دعم غير القادرين، قوافل طبية، ومبادرات فحص السكر والضغط الدورية.</p>
+                    </div>
+                    <div class="value-item">
+                        <div class="val-icon"><i class="fa-solid fa-microchip"></i></div>
+                        <h4>الابتكار الرقمي</h4>
+                        <p>تسهيل الطلب وتتبع الروشتات والاستشارات الذكية عبر أحدث المنصات.</p>
+                    </div>
+                </div>
+
+                <!-- ==================== FOUNDER & LEADERSHIP SECTION ==================== -->
+                <div class="founder-section-wrapper">
+                    <div class="founder-card">
+                        <div class="founder-badge-top">قيادة ورؤية مستقبلية</div>
+                        <div class="founder-inner-grid">
+                            <div class="founder-image-col">
+                                <div class="founder-avatar-frame">
+                                    <div class="founder-avatar-placeholder">
+                                        <i class="fa-solid fa-user-tie"></i>
+                                    </div>
+                                    <div class="founder-verified-badge" title="مؤسس موثق">
+                                        <i class="fa-solid fa-circle-check"></i>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="founder-info-col">
+                                <span class="founder-role-tag">المؤسس ورئيس مجلس الإدارة</span>
+                                <h3 class="founder-name">د. إسلام السيد | Dr. Islam Elsayed</h3>
+                                <p class="founder-bio">
+                                    خبير واستشاري في إدارة الرعاية الصحية وتطوير المنظومات الصيدلانية الحديثة بخبرة تزيد
+                                    عن <strong>10 سنوات</strong> في إدارة المبيعات والعمليات التشغيلية وإدارة الفئات
+                                    الدوائية والتجميلية في سلاسل الصيدليات في مصر والمملكة العربية السعودية. يقود
+                                    <strong>صيدليات العوضي</strong> برؤية استراتيجية واعدة
+                                    تهدف إلى تأسيس نموذج صيدلي رائد يرتكز على أعلى معايير الجودة والمساعدة على امتلاك
+                                    قدرة استثنائية على تشخيص احتياجات العملاء وتقديم الحل العلاجي الأنسب لكل حالة،
+                                    ودمج الحلول الرقمية الذكية لتيسير وصول الدواء الآمن ومستحضرات العناية الأصلية
+                                    لكافة فئات المجتمع.
+                                </p>
+                                <p class="founder-bio" style="margin-top: -0.5rem;">
+                                    يتبنى فلسفة مستدامة تضع سلامة المريض وصحة الأسرة في صدارة الأولويات، مع التوسع في
+                                    برامج المسؤولية المجتمعية ورعاية الأمراض المزمنة، وتأهيل وتطوير الكوادر الصيدلانية
+                                    الشابة وفق أحدث البروتوكولات العلاجية العالمية.
+                                </p>
+                                <div class="founder-achievements">
+                                    <span class="ach-badge"><i class="fa-solid fa-store"></i> صيدليات العوضي</span>
+                                    <span class="ach-badge"><i class="fa-solid fa-chart-line"></i> إدارة المبيعات
+                                        والنمو</span>
+                                    <span class="ach-badge"><i class="fa-solid fa-layer-group"></i> إدارة الفئات
+                                        الدوائية</span>
+                                    <span class="ach-badge"><i class="fa-solid fa-user-doctor"></i> الإرشاد الدوائي
+                                        للمرضى</span>
+                                    <span class="ach-badge"><i class="fa-solid fa-scale-balanced"></i> الالتزام التنظيمي
+                                        وأخلاقيات المهنة</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== SECTION 5: CONTACT US ==================== -->
+        <section id="section-contact" class="app-section">
+            <div class="container section-container">
+                <!-- Section Header -->
+                <div class="section-heading text-center">
+                    <span class="sub-title">نحن دائماً في خدمتك</span>
+                    <h2 class="main-title">اتصل بنا - صيدليات العوضي</h2>
+                    <p class="section-lead">يسعدنا تواصلكم معنا على مدار الساعة طوال أيام الأسبوع عبر الخط الساخن،
+                        الواتساب، أو زيارة أقرب فرع.</p>
+                </div>
+
+                <!-- Hotline & Direct Channels Card -->
+                <div class="contact-channels-grid">
+                    <div class="contact-card hot-card">
+                        <div class="c-icon"><i class="fa-solid fa-phone-volume"></i></div>
+                        <h3>الخط الساخن الموحد</h3>
+                        <div class="phone-display">غير متاح بعد</div>
+                        <p>خدمة الرد السريع وطلب الأدوية 24 ساعة طوال أيام الأسبوع من أي خط أرضي أو محمول في مصر.</p>
+                        <a href="tel:19850" class="btn btn-outline-white">اتصل الآن</a>
+                    </div>
+                    <div class="contact-card whatsapp-card">
+                        <div class="c-icon"><i class="fa-brands fa-whatsapp"></i></div>
+                        <h3>خدمة الواتساب للروشتات</h3>
+                        <div class="phone-display">010</div>
+                        <p>أرسل صورة الروشتة أو استفسارك وسيتم الرد عليك في أقل من 5 دقائق لتأكيد الطلب.</p>
+                        <a href="https://wa.me/201000000000" target="_blank" class="btn btn-whatsapp">محادثة واتساب
+                            فورية</a>
+                    </div>
+                    <div class="contact-card email-card">
+                        <div class="c-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
+                        <h3>البريد الإلكتروني</h3>
+                        <div class="phone-display text-sm">care@elawadipharmacies.eg</div>
+                        <p>للاستفسارات العامة، الشراكات المؤسسية، وخدمات التأمين الطبي للشركات والمصانع.</p>
+                        <a href="mailto:care@elawadipharmacies.eg" class="btn btn-outline">إرسال بريد</a>
+                    </div>
+                </div>
+
+                <!-- Branches & Message Form Grid -->
+                <div class="contact-interactive-grid">
+                    <!-- Branch Locator Tabs -->
+                    <div class="branches-container">
+                        <div class="branches-header">
+                            <h3><i class="fa-solid fa-map-location-dot"></i> فروع صيدليات العوضي</h3>
+                            <p>اختر المحافظة لاستعراض الفروع وساعات العمل وأرقام التواصل المباشرة:</p>
+                        </div>
+
+                        <div class="branch-tabs">
+                            <button class="branch-tab-btn active" onclick="showBranchCity('dakahlia')">فروع المنصورة</button>
+                        </div>
+
+                        <div class="branch-list" id="branchesList">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="contact-form-box">
+                        <div class="form-header">
+                            <h3><i class="fa-solid fa-paper-plane"></i> أرسل رسالة مباشرة</h3>
+                            <p>لديك استفسار، اقتراح، أو شكوى؟ تواصل معنا وسيتم الرد عليك سريعاً.</p>
+                        </div>
+
+                        <form id="contactUsForm" onsubmit="handleContactSubmit(event)">
+                            <div class="form-group">
+                                <label for="contactName">الاسم الكامل <span class="required">*</span></label>
+                                <input type="text" id="contactName" placeholder="اكتب اسمك هنا" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactPhone">رقم الهاتف <span class="required">*</span></label>
+                                <input type="tel" id="contactPhone" placeholder="01xxxxxxxxx"
+                                    pattern="^01[0125][0-9]{8}$" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactEmail">البريد الإلكتروني (اختياري)</label>
+                                <input type="email" id="contactEmail" placeholder="example@domain.com">
+                            </div>
+                            <div class="form-group">
+                                <label for="contactSubject">نوع الرسالة <span class="required">*</span></label>
+                                <select id="contactSubject" required>
+                                    <option value="استفسار عن دواء أو منتج">استفسار عن دواء أو منتج</option>
+                                    <option value="اقتراح لتطوير الخدمة">اقتراح لتطوير الخدمة</option>
+                                    <option value="متابعة طلب دليفري">متابعة طلب دليفري</option>
+                                    <option value="شكوى">تقديم شكوى</option>
+                                    <option value="تعاقدات تأمين طبي وشركات">تعاقدات تأمين طبي وشركات</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="contactMessage">نص الرسالة <span class="required">*</span></label>
+                                <textarea id="contactMessage" rows="4" placeholder="اكتب تفاصيل رسالتك هنا..."
+                                    required></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">
+                                <i class="fa-solid fa-send"></i> إرسال الرسالة الآن
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Simulated Interactive Map Viewer -->
+                <div class="map-simulation-card">
+                    <div class="map-header">
+                        <h4><i class="fa-solid fa-location-crosshairs"></i> شبكة التوزيع وفروع العوضي </h4>
+                        <span>تغطية لجميع الأحياء</span>
+                    </div>
+                    <div class="map-visual-placeholder">
+                        <div class="map-pin pin-mansoura" style="top: 40%; right: 40%;" title="فرع طناح"><i class="fa-solid fa-hospital"></i>
+                            <span>فرع طناح (مركز المنصورة - الدقهلية)</span>
+                        </div>
+                        <div class="map-pin pin-mansoura" style="top: 55%; right: 55%;" title="فرع كفر طناح"><i class="fa-solid fa-hospital"></i>
+                            <span>فرع كفر طناح (مركز المنصورة - الدقهلية)</span>
+                        </div>
+                        <div class="map-overlay-text">
+                            <p><i class="fa-solid fa-truck-fast"></i>  خدمة توصيل يغطي طناح وكفر طناح والقرى المجاورة </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ==================== 4. FOOTER ==================== -->
+    <footer class="main-footer">
+        <div class="container footer-grid">
+            <div class="footer-col brand-col">
+                <div class="footer-logo">
+                    <i class="fa-solid fa-staff-snake"></i>
+                    <span>صيدليات العوضي</span>
+                </div>
+                <p class="footer-desc">
+                    صيدلية مصرية رائدة تقدم أحدث خدمات الرعاية الدوائية ومستحضرات التجميل الأصلية مع التوصيل المنزلي
+                    السريع، تحت إشراف نخبة من الصيادلة المتميزين.
+                </p>
+                <div class="hotline-footer-box">
+                    <i class="fa-solid fa-phone-volume"></i>
+                    <div>
+                        <span>الخط الساخن المباشر</span>
+                        <strong>غير متاح بعد</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="footer-col links-col">
+                <h4>روابط سريعة</h4>
+                <ul>
+                    <li><a href="#home" onclick="switchSection('home')"><i class="fa-solid fa-chevron-left"></i>
+                            الرئيسية</a></li>
+                    <li><a href="#products" onclick="switchSection('products')"><i class="fa-solid fa-chevron-left"></i>
+                            الأدوية ومستحضرات التجميل</a></li>
+                    <li><a href="#consultations" onclick="switchSection('consultations')"><i
+                                class="fa-solid fa-chevron-left"></i> حجز استشارات طبية</a></li>
+                    <li><a href="#about" onclick="switchSection('about')"><i class="fa-solid fa-chevron-left"></i> عن
+                            صيدليات العوضي</a></li>
+                    <li><a href="#contact" onclick="switchSection('contact')"><i class="fa-solid fa-chevron-left"></i>
+                            فروعنا واتصل بنا</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col categories-col">
+                <h4>أقسام المنتجات</h4>
+                <ul>
+                    <li><a href="#products" onclick="filterBySpecificCategory('medicines')"><i
+                                class="fa-solid fa-chevron-left"></i> أدوية الأمراض المزمنة</a></li>
+                    <li><a href="#products" onclick="filterBySpecificCategory('skincare')"><i
+                                class="fa-solid fa-chevron-left"></i> منتجات العناية بالبشرة</a></li>
+                    <li><a href="#products" onclick="filterBySpecificCategory('haircare')"><i
+                                class="fa-solid fa-chevron-left"></i> العناية بالشعر ومقاومة التساقط</a></li>
+                    <li><a href="#products" onclick="filterBySpecificCategory('vitamins')"><i
+                                class="fa-solid fa-chevron-left"></i> الفيتامينات والمكملات الغذائية</a></li>
+                    <li><a href="#products" onclick="filterBySpecificCategory('devices')"><i
+                                class="fa-solid fa-chevron-left"></i> أجهزة قياس السكر والضغط</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-col payments-col">
+                <h4>طرق الدفع والأمان</h4>
+                <p>نوفر خيارات دفع آمنة ومتنوعة لتسهيل تجربتك:</p>
+                <div class="payment-methods-grid">
+                    <span class="pay-badge"><i class="fa-solid fa-money-bill-wave"></i> الدفع كاش عند الاستلام</span>
+                    <span class="pay-badge"><i class="fa-brands fa-cc-visa"></i> فيزا وماستركارد</span>
+                    <span class="pay-badge"><i class="fa-solid fa-mobile-screen-button"></i> فودافون كاش ومحافظ
+                        إلكترونية</span>
+                    <span class="pay-badge"><i class="fa-solid fa-credit-card"></i> كروت ميزة الوطنية</span>
+                </div>
+                <div class="eda-compliance-badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                    <span>مطابق لاشتراطات وزارة الصحة وهيئة الدواء المصرية (EDA)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="container footer-bottom-flex">
+                <p>© 2026 صيدليات العوضي (Elawadi Pharmacies). جميع الحقوق محفوظة.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==================== 5. MODALS & POPUPS ==================== -->
+
+    <!-- Quick Prescription Modal -->
+    <div class="app-modal" id="prescriptionModal">
+        <div class="modal-overlay" onclick="closePrescriptionModal()"></div>
+        <div class="modal-dialog">
+            <button class="btn-modal-close" onclick="closePrescriptionModal()" aria-label="إغلاق"><i
+                    class="fa-solid fa-xmark"></i></button>
+            <div class="modal-header">
+                <div class="modal-icon"><i class="fa-solid fa-file-prescription"></i></div>
+                <h3>طلب وصرف الروشتة السريع</h3>
+                <p>صور الروشتة أو اكتب الأدوية المطلوبة وسنوصلها لك فوراً</p>
+            </div>
+            <div class="modal-body">
+                <form id="quickRxModalForm" onsubmit="handleQuickRxModalSubmit(event)">
+                    <!-- Upload Prescription File / Image -->
+                    <div class="form-group">
+                        <label><i class="fa-solid fa-cloud-arrow-up"></i> رفع صورة الروشتة أو ملف (اختياري)</label>
+                        <div class="modal-prescription-upload-box" id="modalRxUploadBox">
+                            <input type="file" id="modalRxFileInput" accept="image/*,.pdf"
+                                onchange="handleModalFileSelect(event)">
+                            <div class="upload-dropzone-content">
+                                <i class="fa-solid fa-camera"></i>
+                                <p id="modalRxFileLabel">اضغط هنا لرفع صورة الروشتة أو اسحب الملف</p>
+                                <span>يدعم صور JPG, PNG أو مستندات PDF</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="modalRxText">اسم الدواء أو اكتب تفاصيل طلبك <span class="required">*</span></label>
+                        <textarea id="modalRxText" rows="2" placeholder="اكتب أسماء الأدوية المطلوبة أو ملاحظاتك هنا..."
+                            required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalRxName">اسمك بالكامل <span class="required">*</span></label>
+                        <input type="text" id="modalRxName" placeholder="الاسم ثلاثي" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="modalRxPhone">رقم الموبايل المصري <span class="required">*</span></label>
+                        <input type="tel" id="modalRxPhone" placeholder="01xxxxxxxxx" pattern="^01[0125][0-9]{8}$"
+                            title="يرجى إدخال رقم هاتف مصري صحيح (11 رقماً)" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label-bold"><i class="fa-solid fa-truck-ramp-box"></i> طريقة الاستلام:</label>
+                        <div class="radio-inline-group">
+                            <label><input type="radio" name="modalDeliveryMethod" value="delivery" checked
+                                    onchange="toggleModalDeliveryLocation(true)"> توصيل لباب المنزل</label>
+                            <label><input type="radio" name="modalDeliveryMethod" value="pickup"
+                                    onchange="toggleModalDeliveryLocation(false)"> استلام من الفرع</label>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic Delivery Location Box (Shown when Delivery is checked) -->
+                    <div class="modal-location-box" id="modalDeliveryLocationBox">
+                        <label><i class="fa-solid fa-map-location-dot"></i> موقع التوصيل:</label>
+                        <div class="gps-button-wrapper">
+                            <button type="button" class="btn btn-gps" id="btnGetModalLocation"
+                                onclick="detectUserLocation('modal')">
+                                <i class="fa-solid fa-location-crosshairs"></i>
+                                <span>تحديد موقعي الحالي بدقة (GPS)</span>
+                            </button>
+                            <span class="location-status-badge" id="modalLocationStatus"></span>
+                        </div>
+                        <input type="text" id="modalAddressDetails"
+                            placeholder="اكتب العنوان التفصيلي (المنطقة، الشارع، رقم العمارة والشقة)...">
+                        <input type="hidden" id="modalGpsCoordinates" value="">
+                    </div>
+
+                    <!-- Dynamic Branch Selector Box (Shown when Pickup is checked) -->
+                    <div class="modal-branch-box" id="modalBranchSelectBox" style="display: none;">
+                        <label for="modalBranchSelect"><i class="fa-solid fa-store"></i> اختر فرع الاستلام:</label>
+                        <select id="modalBranchSelect">
+                            <option value="88df6ef9-277b-4e9b-ab99-14c0cadd9503">فرع طناح - المنصورة - الدقهلية</option>
+                            <option value="f6644e05-4027-4a68-b472-4d681bc7459c">فرع كفر طناح - المنصورة - الدقهلية</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1rem;">
+                        <i class="fa-solid fa-paper-plane"></i> إرسال الطلب فوراً
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Success Confirmation Modal -->
+    <div class="app-modal" id="orderSuccessModal">
+        <div class="modal-overlay" onclick="closeSuccessModal()"></div>
+        <div class="modal-dialog text-center">
+            <button class="btn-modal-close" onclick="closeSuccessModal()" aria-label="إغلاق"><i
+                    class="fa-solid fa-xmark"></i></button>
+            <div class="success-icon-wrap">
+                <i class="fa-solid fa-circle-check"></i>
+            </div>
+            <h3 class="success-title">تم استلام طلبك بنجاح!</h3>
+            <p class="success-desc">شكراً لثقتك في <strong>صيدليات العوضي</strong>. جاري مراجعة طلبك من قِبل الصيدلي
+                المناوب وتجهيزه بأعلى معايير الأمان الدوائي.</p>
+
+            <div class="order-summary-box">
+                <div class="summary-row">
+                    <span>رقم تتبع الطلب:</span>
+                    <strong class="tracking-number" id="successTrackingNumber">AWD-EGY-0000</strong>
+                </div>
+                <div class="summary-row">
+                    <span>الاسم:</span>
+                    <span id="successPatientName">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>رقم الهاتف:</span>
+                    <span id="successPhone">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>طريقة الاستلام:</span>
+                    <span id="successDeliveryType">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>الوقت المتوقع:</span>
+                    <span class="delivery-time-badge"><i class="fa-solid fa-clock"></i> خلال 30 - 45 دقيقة</span>
+                </div>
+            </div>
+
+            <div class="success-actions">
+                <button class="btn btn-primary" onclick="closeSuccessModal()">
+                    <i class="fa-solid fa-check"></i> حسناً، متابعة الموقع
+                </button>
+                <a href="tel:19850" class="btn btn-outline">
+                    <i class="fa-solid fa-phone"></i> الخط الساخن غير متاح حاليا
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clinic Appointment Ticket Confirmation Modal -->
+    <div class="app-modal" id="clinicTicketModal">
+        <div class="modal-overlay" onclick="closeClinicTicketModal()"></div>
+        <div class="modal-dialog text-center">
+            <button class="btn-modal-close" onclick="closeClinicTicketModal()" aria-label="إغلاق"><i
+                    class="fa-solid fa-xmark"></i></button>
+            <div class="success-icon-wrap" style="background-color: #E0F2FE; color: #0284C7;">
+                <i class="fa-solid fa-hospital-user"></i>
+            </div>
+            <h3 class="success-title">تم تأكيد حجز موعد العيادة!</h3>
+            <p class="success-desc">تم تسجيل حجزك بنجاح في عيادات <strong>صيدليات العوضي التخصصية</strong>. يرجى التواجد
+                قبل الموعد بـ 15 دقيقة لتأكيد الدخول.</p>
+
+            <div class="order-summary-box">
+                <div class="summary-row">
+                    <span>رقم تذكرة الحجز:</span>
+                    <strong class="tracking-number" id="ticketNumber">CLN-EGY-0000</strong>
+                </div>
+                <div class="summary-row">
+                    <span>الطبيب المعالج:</span>
+                    <strong id="ticketDoctorName" style="color: var(--primary-dark);">-</strong>
+                </div>
+                <div class="summary-row">
+                    <span>التخصص والفرع:</span>
+                    <span id="ticketBranch">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>الموعد المحدد:</span>
+                    <strong id="ticketTimeSlot" style="color: #B45309;">-</strong>
+                </div>
+                <div class="summary-row">
+                    <span>اسم المريض:</span>
+                    <span id="ticketPatientName">-</span>
+                </div>
+                <div class="summary-row">
+                    <span>رقم الهاتف:</span>
+                    <span id="ticketPhone">-</span>
+                </div>
+            </div>
+
+            <div class="success-actions">
+                <button class="btn btn-primary" onclick="closeClinicTicketModal()">
+                    <i class="fa-solid fa-check"></i> تم، حفظ التذكرة
+                </button>
+                <a href="tel:19850" class="btn btn-outline">
+                    <i class="fa-solid fa-phone"></i> الخط الساخن غير متاح حاليا
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cart / Orders Drawer -->
+    <div class="cart-drawer" id="cartDrawer">
+        <div class="cart-drawer-overlay" onclick="toggleCartDrawer()"></div>
+        <div class="cart-drawer-content">
+            <div class="cart-drawer-header">
+                <div class="cart-title">
+                    <i class="fa-solid fa-bag-shopping"></i>
+                    <span>قائمة الطلبات المحددة</span>
+                </div>
+                <button class="btn-close-drawer" onclick="toggleCartDrawer()" aria-label="إغلاق"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="cart-drawer-body" id="cartDrawerItems">
+                <!-- Populated dynamically via JS -->
+            </div>
+            <div class="cart-drawer-footer" id="cartDrawerFooter">
+                <div class="cart-total-row">
+                    <span>الإجمالي التقديري:</span>
+                    <strong id="cartTotalPrice">0.00 ج.م</strong>
+                </div>
+                <button class="btn btn-primary btn-block btn-lg" onclick="checkoutFromCart()">
+                    <i class="fa-solid fa-truck-fast"></i> إتمام حجز وطلب هذه المنتجات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Action Buttons (WhatsApp & Quick Call) -->
+    <div class="floating-quick-actions">
+        <a href="https://wa.me/201000000000" target="_blank" class="float-btn float-whatsapp" title="تواصل واتساب"
+            aria-label="واتساب">
+            <i class="fa-brands fa-whatsapp"></i>
+            <span class="float-tooltip">تواصل عبر واتساب</span>
+        </a>
+        <a href="tel:19850" class="float-btn float-call" title="اتصل بالخط الساخن" aria-label="اتصل بنا">
+            <i class="fa-solid fa-phone"></i>
+            <span class="float-tooltip">الخط الساخن </span>
+        </a>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Custom Script & Supabase Date -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
