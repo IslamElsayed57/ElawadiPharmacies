@@ -60,12 +60,53 @@ async function uploadPrescriptionFile(file) {
 // --------------------------------------------------------------------------
 let PRODUCTS_DATA = [];
 let CATEGORIES_DATA = [];
+let SUBCATEGORIES_DATA = [];
 
 /**
  * Fetches active categories and products from Supabase and builds
  * PRODUCTS_DATA in the same shape the rest of the app already expects,
  * then triggers the first catalog render. Called once on page load.
  */
+/**
+ * Groups fetched subcategories by their parent category's slug, then
+ * replaces the static hardcoded links inside each category's
+ * .subcat-dropdown-menu with real, database-driven ones. Falls back to
+ * hiding the dropdown entirely for a category that has no subcategories.
+ */
+function renderSubcategoryDropdowns(categoryMap) {
+    const bySlug = {};
+    SUBCATEGORIES_DATA.forEach(s => {
+        const cat = categoryMap[s.category_id];
+        if (!cat) return;
+        if (!bySlug[cat.slug]) bySlug[cat.slug] = [];
+        bySlug[cat.slug].push(s);
+    });
+
+    document.querySelectorAll(".cat-item-wrapper").forEach(wrapper => {
+        const pillBtn = wrapper.querySelector(".cat-pill");
+        const menu = wrapper.querySelector(".subcat-dropdown-menu");
+        const grid = wrapper.querySelector(".subcat-grid");
+        if (!pillBtn || !menu || !grid) return;
+
+        const slug = pillBtn.getAttribute("data-category");
+        const list = bySlug[slug] || [];
+
+        if (list.length === 0) {
+            menu.style.display = "none";
+            return;
+        }
+
+        menu.style.display = "";
+        grid.innerHTML = list.map(s => `
+            <a href="javascript:void(0)" class="subcat-link"
+                onclick="filterBySubcategoryId('${slug}', '${s.id}', '${(s.name_ar || "").replace(/'/g, "\\'")}')">
+                <i class="fa-solid ${s.icon || 'fa-pills'}"></i>
+                <div><strong>${s.name_ar}</strong></div>
+            </a>
+        `).join("");
+    });
+}
+
 async function loadProductsCatalog() {
     try {
         const { data: categories, error: catError } = await supabaseClient
@@ -81,6 +122,18 @@ async function loadProductsCatalog() {
         CATEGORIES_DATA.forEach(c => {
             categoryMap[c.id] = { slug: c.slug, name_ar: c.name_ar };
         });
+
+        // Fetch active subcategories and render them into each category's
+        // dropdown menu live, instead of the old hardcoded keyword list.
+        const { data: subcats, error: subError } = await supabaseClient
+            .from("subcategories")
+            .select("id, category_id, name_ar, name_en, icon")
+            .eq("is_active", true);
+
+        if (subError) throw subError;
+
+        SUBCATEGORIES_DATA = subcats || [];
+        renderSubcategoryDropdowns(categoryMap);
 
         const { data: products, error: prodError } = await supabaseClient
             .from("products")
@@ -104,7 +157,8 @@ async function loadProductsCatalog() {
                 badgeType: p.badge_type || "official",
                 icon: p.icon || "fa-pills",
                 imageUrl: p.image_url || null,
-                inStock: p.in_stock !== false
+                inStock: p.in_stock !== false,
+                subcategoryId: p.subcategory_id || null
             };
         });
 
@@ -149,7 +203,7 @@ const BRANCHES_DATA = {
 let state = {
     currentCategory: "all",
     activeSubcategory: null,
-    activeSubcategoryKeyword: "",
+    activeSubcategoryId: null,
     searchQuery: "",
     inlineSearchQuery: "",
     sortBy: "featured",
@@ -274,14 +328,10 @@ function renderProductsCatalog() {
         // Category Match
         const matchCategory = state.currentCategory === "all" || item.category === state.currentCategory;
         
-        // Subcategory Keyword Match
+        // Subcategory Match (real relational match, not keyword guessing)
         let matchSubcategory = true;
-        if (state.activeSubcategoryKeyword) {
-            const kw = state.activeSubcategoryKeyword.toLowerCase();
-            matchSubcategory = item.nameAr.toLowerCase().includes(kw) || 
-                               item.nameEn.toLowerCase().includes(kw) || 
-                               item.badge.toLowerCase().includes(kw) ||
-                               item.categoryName.toLowerCase().includes(kw);
+        if (state.activeSubcategoryId) {
+            matchSubcategory = item.subcategoryId === state.activeSubcategoryId;
         }
 
         // Search Match (Global or Inline)
@@ -359,10 +409,10 @@ function filterProductsByCategory(category) {
     renderProductsCatalog();
 }
 
-function filterBySubcategory(parentCategory, subcategoryTitle, keyword) {
+function filterBySubcategoryId(parentCategory, subcategoryId, subcategoryTitle) {
     state.currentCategory = parentCategory;
     state.activeSubcategory = subcategoryTitle;
-    state.activeSubcategoryKeyword = keyword;
+    state.activeSubcategoryId = subcategoryId;
 
     // Update category pill active state
     const pills = document.querySelectorAll(".cat-pill");
@@ -389,7 +439,7 @@ function filterBySubcategory(parentCategory, subcategoryTitle, keyword) {
 
 function clearSubcategoryFilter(shouldReRender = true) {
     state.activeSubcategory = null;
-    state.activeSubcategoryKeyword = "";
+    state.activeSubcategoryId = null;
 
     const bar = document.getElementById("activeSubcatBar");
     if (bar) {
