@@ -406,20 +406,21 @@ function filterProductsByCategory(category) {
         }
     });
 
-    // Tap-to-open the subcategory dropdown on touch devices, since the
-    // menu was only ever shown via CSS :hover which never fires on
-    // mobile. Tapping a category that has subcategories toggles its
-    // panel open (and closes any other open one); tapping it again, or
-    // any category without subcategories, closes all panels.
+    // Tap-to-open the subcategory dropdown on touch devices. The panel's
+    // visibility is controlled via opacity/visibility/pointer-events (a
+    // fade transition), NOT display — so those are the properties that
+    // must be toggled inline to override the :hover-only CSS rule, which
+    // never fires on a touch device.
     const clickedWrapper = document.querySelector(`.cat-item-wrapper .cat-pill[data-category="${category}"]`)?.closest(".cat-item-wrapper");
     const clickedMenu = clickedWrapper?.querySelector(".subcat-dropdown-menu");
+    const isCurrentlyOpen = clickedMenu && clickedMenu.style.visibility === "visible";
 
     document.querySelectorAll(".cat-item-wrapper .subcat-dropdown-menu").forEach(menu => {
-        if (menu === clickedMenu && menu.style.display !== "flex") {
-            menu.style.display = "flex";
-        } else {
-            menu.style.display = "none";
-        }
+        const shouldOpen = menu === clickedMenu && !isCurrentlyOpen;
+        menu.style.opacity = shouldOpen ? "1" : "0";
+        menu.style.visibility = shouldOpen ? "visible" : "hidden";
+        menu.style.pointerEvents = shouldOpen ? "auto" : "none";
+        menu.style.transform = shouldOpen ? "translateY(0)" : "translateY(10px)";
     });
 
     renderProductsCatalog();
@@ -452,7 +453,10 @@ function filterBySubcategoryId(parentCategory, subcategoryId, subcategoryTitle) 
 
     // Close any open subcategory panel now that a choice was made
     document.querySelectorAll(".cat-item-wrapper .subcat-dropdown-menu").forEach(menu => {
-        menu.style.display = "none";
+        menu.style.opacity = "0";
+        menu.style.visibility = "hidden";
+        menu.style.pointerEvents = "none";
+        menu.style.transform = "translateY(10px)";
     });
 
     showToast(`تمت التصفية حسب: ${subcategoryTitle}`, "success");
