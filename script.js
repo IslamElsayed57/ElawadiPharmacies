@@ -406,6 +406,22 @@ function filterProductsByCategory(category) {
         }
     });
 
+    // Tap-to-open the subcategory dropdown on touch devices, since the
+    // menu was only ever shown via CSS :hover which never fires on
+    // mobile. Tapping a category that has subcategories toggles its
+    // panel open (and closes any other open one); tapping it again, or
+    // any category without subcategories, closes all panels.
+    const clickedWrapper = document.querySelector(`.cat-item-wrapper .cat-pill[data-category="${category}"]`)?.closest(".cat-item-wrapper");
+    const clickedMenu = clickedWrapper?.querySelector(".subcat-dropdown-menu");
+
+    document.querySelectorAll(".cat-item-wrapper .subcat-dropdown-menu").forEach(menu => {
+        if (menu === clickedMenu && menu.style.display !== "flex") {
+            menu.style.display = "flex";
+        } else {
+            menu.style.display = "none";
+        }
+    });
+
     renderProductsCatalog();
 }
 
@@ -433,6 +449,11 @@ function filterBySubcategoryId(parentCategory, subcategoryId, subcategoryTitle) 
     }
 
     renderProductsCatalog();
+
+    // Close any open subcategory panel now that a choice was made
+    document.querySelectorAll(".cat-item-wrapper .subcat-dropdown-menu").forEach(menu => {
+        menu.style.display = "none";
+    });
 
     showToast(`تمت التصفية حسب: ${subcategoryTitle}`, "success");
 }
