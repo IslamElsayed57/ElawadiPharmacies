@@ -210,6 +210,43 @@ let state = {
     cart: []
 };
 
+// Live delivery rules (from Supabase settings.delivery_rules). Any edit
+// to these values in Supabase is picked up automatically on the next
+// page load — no code changes needed.
+let DELIVERY_FEE = 0;
+let FREE_DELIVERY_THRESHOLD = 0;
+let DELIVERY_ESTIMATED_TIME = "";
+
+async function loadDeliveryFee() {
+    try {
+        const { data, error } = await supabaseClient
+            .from("settings")
+            .select("value")
+            .eq("key", "delivery_rules")
+            .single();
+
+        if (error) throw error;
+
+        const fee = Number(data?.value?.default_fee);
+        DELIVERY_FEE = Number.isFinite(fee) ? fee : 0;
+
+        const threshold = Number(data?.value?.free_delivery_threshold);
+        FREE_DELIVERY_THRESHOLD = Number.isFinite(threshold) ? threshold : 0;
+
+        DELIVERY_ESTIMATED_TIME = data?.value?.estimated_time || "";
+    } catch (err) {
+        console.error("Failed to load delivery fee from settings:", err);
+    }
+}
+
+// Applies the free-delivery-over-threshold rule on top of the base fee.
+function calculateDeliveryFee(subtotal) {
+    if (FREE_DELIVERY_THRESHOLD > 0 && subtotal >= FREE_DELIVERY_THRESHOLD) {
+        return 0;
+    }
+    return DELIVERY_FEE;
+}
+
 // --------------------------------------------------------------------------
 // 3. App Initialization
 // --------------------------------------------------------------------------
@@ -222,8 +259,15 @@ document.addEventListener("DOMContentLoaded", () => {
     // Populate the "nearest branch" delivery selects (main form + quick modal)
     loadDeliveryBranchOptions();
 
-    // Initial branches render
-    showBranchCity("dakahlia");
+    // Sync required/visible state of pickup vs delivery fields with the
+    // radio that's checked by default (pickup)
+    toggleDeliveryFields(false);
+
+    // Load live delivery fee from Supabase settings table
+    loadDeliveryFee();
+
+    // Initial branches render (live from Supabase — branches list + map)
+    loadLiveBranches();
 
     // Populate clinic branch dropdown
     populateClinicBranchOptions();
@@ -749,13 +793,22 @@ async function loadDeliveryBranchOptions() {
 function toggleDeliveryFields(isDelivery) {
     const branchGroup = document.getElementById("branchSelectorGroup");
     const addressWrapper = document.getElementById("deliveryAddressWrapper");
+    const pickupBranchEl = document.getElementById("orderBranch");
+    const deliveryBranchEl = document.getElementById("orderDeliveryBranch");
 
     if (isDelivery) {
         if (branchGroup) branchGroup.style.display = "none";
         if (addressWrapper) addressWrapper.style.display = "block";
+        if (deliveryBranchEl) deliveryBranchEl.required = true;
+        if (pickupBranchEl) pickupBranchEl.required = false;
     } else {
         if (branchGroup) branchGroup.style.display = "block";
         if (addressWrapper) addressWrapper.style.display = "none";
+        if (deliveryBranchEl) {
+            deliveryBranchEl.required = false;
+            deliveryBranchEl.value = "";
+        }
+        if (pickupBranchEl) pickupBranchEl.required = false;
     }
 }
 
@@ -888,8 +941,17 @@ async function handleMedicineOrderSubmit(event) {
             }
         }
 
+        // Pricing: subtotal comes from actual cart line items (real product
+        // prices), delivery_fee only applies for delivery orders and comes
+        // live from Supabase settings, total is their sum.
+        const subtotal = state.cart.reduce(
+            (sum, item) => sum + item.price * item.quantity, 0
+        );
+        const deliveryFeeValue = deliveryMethod === "delivery" ? calculateDeliveryFee(subtotal) : 0;
+        const total = subtotal + deliveryFeeValue;
+
         // Send order to Supabase
-        const { data, error } = await supabaseClient
+        const { error } = await supabaseClient
             .from("orders")
             .insert({
                 customer_name: name,
@@ -902,7 +964,10 @@ async function handleMedicineOrderSubmit(event) {
                 status: "new",
                 tracking_code: trackingCode,
                 branch_id: selectedBranchId,
-                order_type: deliveryMethod === "delivery" ? "delivery" : "pickup"
+                order_type: deliveryMethod === "delivery" ? "delivery" : "pickup",
+                subtotal: subtotal,
+                delivery_fee: deliveryFeeValue,
+                total: total
             });
             
         // Check for database error
@@ -917,7 +982,13 @@ async function handleMedicineOrderSubmit(event) {
             return;
         }
 
-        console.log("Order successfully created:", data);
+        console.log("Order successfully created:", trackingCode);
+
+        // NOTE: detailed per-product line items (order_items) aren't linked
+        // yet — that needs the new order's id back from Supabase, which
+        // requires either a SELECT policy on `orders` or (safer) a
+        // database RPC function. See note below the code for the SQL to
+        // enable that as a follow-up.
 
         // Show success information
         document.getElementById("successTrackingNumber").textContent =
@@ -931,6 +1002,26 @@ async function handleMedicineOrderSubmit(event) {
 
         document.getElementById("successDeliveryType").textContent =
             deliveryText;
+
+        const totalRow = document.getElementById("successTotalRow");
+        const totalEl = document.getElementById("successOrderTotal");
+        if (totalRow && totalEl && subtotal > 0) {
+            let totalText = `${total.toFixed(2)} ج.م`;
+            if (deliveryMethod === "delivery") {
+                totalText += deliveryFeeValue === 0
+                    ? " (توصيل مجاني)"
+                    : ` (شامل ${deliveryFeeValue.toFixed(2)} ج.م رسوم توصيل)`;
+            }
+            totalEl.textContent = totalText;
+            totalRow.style.display = "flex";
+        } else if (totalRow) {
+            totalRow.style.display = "none";
+        }
+
+        const estimatedTimeEl = document.getElementById("successEstimatedTime");
+        if (estimatedTimeEl && DELIVERY_ESTIMATED_TIME) {
+            estimatedTimeEl.textContent = `خلال ${DELIVERY_ESTIMATED_TIME}`;
+        }
 
         const successModal =
             document.getElementById("orderSuccessModal");
@@ -1022,13 +1113,19 @@ function handleModalFileSelect(event) {
 function toggleModalDeliveryLocation(isDelivery) {
     const locationBox = document.getElementById("modalDeliveryLocationBox");
     const branchBox = document.getElementById("modalBranchSelectBox");
+    const deliveryBranchEl = document.getElementById("modalDeliveryBranch");
 
     if (isDelivery) {
         if (locationBox) locationBox.style.display = "flex";
         if (branchBox) branchBox.style.display = "none";
+        if (deliveryBranchEl) deliveryBranchEl.required = true;
     } else {
         if (locationBox) locationBox.style.display = "none";
         if (branchBox) branchBox.style.display = "flex";
+        if (deliveryBranchEl) {
+            deliveryBranchEl.required = false;
+            deliveryBranchEl.value = "";
+        }
     }
 }
 
@@ -1214,6 +1311,10 @@ async function handleQuickRxModalSubmit(event) {
             }
         }
 
+        // Delivery fee applies only for delivery orders; this quick-order
+        // modal has no priced cart items, so subtotal stays 0.
+        const modalDeliveryFee = method === "delivery" ? calculateDeliveryFee(0) : 0;
+
         // Send order to Supabase
         const { error } = await supabaseClient
             .from("orders")
@@ -1228,7 +1329,10 @@ async function handleQuickRxModalSubmit(event) {
                 status: "new",
                 tracking_code: trackingCode,
                 branch_id: selectedBranchId,
-                order_type: method === "delivery" ? "delivery" : "pickup"
+                order_type: method === "delivery" ? "delivery" : "pickup",
+                subtotal: 0,
+                delivery_fee: modalDeliveryFee,
+                total: modalDeliveryFee
             });
 
         // Database error
@@ -1598,30 +1702,135 @@ function handleConsultationSubmit(event) {
 // --------------------------------------------------------------------------
 // 11. Branch Locator & Contact Us Logic
 // --------------------------------------------------------------------------
-function showBranchCity(cityKey) {
-    const branchesContainer = document.getElementById("branchesList");
-    const buttons = document.querySelectorAll(".branch-tab-btn");
+// --------------------------------------------------------------------------
+// 11b. Live Branches Section (Supabase-backed: "فروع صيدليات العوضي" +
+//      "شبكة التوزيع وفروع العوضي"). Any branch added/edited/deactivated in
+//      the `branches` table is reflected here automatically on page load.
+//      Kept separate from BRANCHES_DATA (used only by the clinic booking
+//      widget) so this never affects that feature.
+// --------------------------------------------------------------------------
+let LIVE_BRANCHES = [];
 
-    buttons.forEach(btn => {
-        if (btn.getAttribute("onclick").includes(cityKey)) {
-            btn.classList.add("active");
-        } else {
-            btn.classList.remove("active");
+async function loadLiveBranches() {
+    try {
+        const { data, error } = await supabaseClient
+            .from("branches")
+            .select("id, name_ar, city, address, phone, hours, manager, is_active")
+            .eq("is_active", true)
+            .order("city")
+            .order("name_ar");
+
+        if (error) throw error;
+
+        LIVE_BRANCHES = data || [];
+        renderBranchTabs();
+        renderDistributionMap();
+        populatePickupBranchSelects();
+    } catch (err) {
+        console.error("Failed to load branches:", err);
+    }
+}
+
+function renderBranchTabs() {
+    const tabsContainer = document.getElementById("branchTabs");
+    if (!tabsContainer) return;
+
+    const cities = [...new Set(LIVE_BRANCHES.map(b => b.city))];
+
+    if (cities.length === 0) {
+        tabsContainer.innerHTML = "";
+        const branchesContainer = document.getElementById("branchesList");
+        if (branchesContainer) {
+            branchesContainer.innerHTML = `<p style="color: var(--text-muted);">لا توجد فروع مضافة حالياً.</p>`;
         }
+        return;
+    }
+
+    tabsContainer.innerHTML = "";
+    cities.forEach((city, index) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "branch-tab-btn" + (index === 0 ? " active" : "");
+        btn.textContent = `فروع ${city}`;
+        btn.addEventListener("click", () => renderBranchesForCity(city));
+        tabsContainer.appendChild(btn);
     });
 
-    const branches = BRANCHES_DATA[cityKey] || [];
-    if (branchesContainer) {
-        branchesContainer.innerHTML = branches.map(b => `
-            <div class="branch-item-card">
-                <h4><i class="fa-solid fa-hospital" style="color: var(--primary); margin-left: 0.4rem;"></i> ${b.name}</h4>
-                <p><i class="fa-solid fa-location-dot" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>العنوان:</strong> ${b.address}</p>
-                <p><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>التليفون:</strong> ${b.phone} | <a href="tel:${b.phone}" style="color: var(--primary); font-weight: bold;">اتصال مباشر</a></p>
-                <p><i class="fa-solid fa-clock" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>المواعيد:</strong> ${b.hours}</p>
-                <p><i class="fa-solid fa-user-doctor" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>مدير الفرع:</strong> ${b.manager}</p>
-            </div>
-        `).join("");
+    renderBranchesForCity(cities[0]);
+}
+
+function renderBranchesForCity(city) {
+    const branchesContainer = document.getElementById("branchesList");
+    const buttons = document.querySelectorAll("#branchTabs .branch-tab-btn");
+
+    buttons.forEach(btn => {
+        btn.classList.toggle("active", btn.textContent === `فروع ${city}`);
+    });
+
+    const branches = LIVE_BRANCHES.filter(b => b.city === city);
+
+    if (!branchesContainer) return;
+
+    branchesContainer.innerHTML = branches.map(b => `
+        <div class="branch-item-card">
+            <h4><i class="fa-solid fa-hospital" style="color: var(--primary); margin-left: 0.4rem;"></i> ${b.name_ar}</h4>
+            <p><i class="fa-solid fa-location-dot" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>العنوان:</strong> ${b.address || "غير محدد"}</p>
+            <p><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>التليفون:</strong> ${b.phone || "غير محدد"} | <a href="tel:${b.phone || ''}" style="color: var(--primary); font-weight: bold;">اتصال مباشر</a></p>
+            <p><i class="fa-solid fa-clock" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>المواعيد:</strong> ${b.hours || "غير محدد"}</p>
+            <p><i class="fa-solid fa-user-doctor" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>مدير الفرع:</strong> ${b.manager || "غير محدد"}</p>
+        </div>
+    `).join("");
+}
+
+function populatePickupBranchSelects() {
+    const selects = [
+        document.getElementById("orderBranch"),
+        document.getElementById("modalBranchSelect")
+    ].filter(Boolean);
+
+    if (selects.length === 0) return;
+
+    const optionsHtml = LIVE_BRANCHES
+        .map(b => `<option value="${b.id}">${b.name_ar}</option>`)
+        .join("");
+
+    selects.forEach(select => {
+        select.innerHTML = optionsHtml || `<option value="" disabled selected>لا توجد فروع متاحة حالياً</option>`;
+    });
+}
+
+function renderDistributionMap() {
+    const mapContainer = document.getElementById("mapVisualPlaceholder");
+    if (!mapContainer) return;
+
+    if (LIVE_BRANCHES.length === 0) {
+        mapContainer.innerHTML = `<div class="map-overlay-text"><p>لا توجد فروع مضافة حالياً</p></div>`;
+        return;
     }
+
+    // Simple auto-generated grid layout for pins (3 per row) so any number
+    // of branches from Supabase gets placed without manual positioning.
+    const cols = 3;
+    const pinsHtml = LIVE_BRANCHES.map((b, i) => {
+        const row = Math.floor(i / cols);
+        const col = i % cols;
+        const top = `${20 + row * 32}%`;
+        const right = `${15 + col * 30}%`;
+        return `
+            <div class="map-pin pin-mansoura" style="top: ${top}; right: ${right};" title="${b.name_ar}">
+                <i class="fa-solid fa-hospital"></i>
+                <span>${b.name_ar} (${b.city})</span>
+            </div>
+        `;
+    }).join("");
+
+    const cities = [...new Set(LIVE_BRANCHES.map(b => b.city))].join(" و");
+
+    mapContainer.innerHTML = pinsHtml + `
+        <div class="map-overlay-text">
+            <p><i class="fa-solid fa-truck-fast"></i> خدمة توصيل تغطي ${cities} والمناطق المجاورة</p>
+        </div>
+    `;
 }
 
 function handleContactSubmit(event) {

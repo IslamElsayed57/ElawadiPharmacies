@@ -2602,6 +2602,32 @@ body.dark-mode .cat-pill i {
     color: #FFFFFF;
 }
 
+.social-links-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.85rem;
+    margin-top: 0.4rem;
+}
+
+.social-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.15);
+    color: #FFFFFF;
+    font-size: 1.15rem;
+    transition: var(--transition-normal);
+}
+
+.social-icon-btn:hover {
+    background-color: rgba(255, 255, 255, 0.32);
+    transform: translateY(-3px);
+}
+
 .phone-display {
     font-size: 2rem;
     font-weight: 900;
@@ -2625,15 +2651,15 @@ body.dark-mode .cat-pill i {
     line-height: 1.6;
 }
 
-/* Branches & Form Grid */
+/* Branches Grid (form box removed — branches box now fills the row) */
 .contact-interactive-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 2rem;
     margin-bottom: 3rem;
 }
 
-.branches-container, .contact-form-box {
+.branches-container {
     background: #FFFFFF;
     padding: 2rem;
     border-radius: var(--radius-lg);
@@ -2677,11 +2703,16 @@ body.dark-mode .cat-pill i {
     border-color: var(--primary);
 }
 
+.branch-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
 .branch-item-card {
     background: var(--bg-alt);
     border-radius: var(--radius-md);
     padding: 1.2rem;
-    margin-bottom: 1rem;
     border-right: 4px solid var(--primary);
 }
 

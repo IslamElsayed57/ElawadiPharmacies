@@ -821,7 +821,7 @@
                                         <i class="fa-solid fa-map-pin"></i> اختر أقرب فرع لك <span
                                             class="required">*</span>
                                     </label>
-                                    <select id="orderDeliveryBranch" required>
+                                    <select id="orderDeliveryBranch">
                                         <option value="" disabled selected>-- اختر الفرع الأقرب لعنوانك --</option>
                                     </select>
                                 </div>
@@ -1434,12 +1434,32 @@
 
                 <!-- Hotline & Direct Channels Card -->
                 <div class="contact-channels-grid">
-                    <div class="contact-card hot-card">
-                        <div class="c-icon"><i class="fa-solid fa-phone-volume"></i></div>
-                        <h3>الخط الساخن الموحد</h3>
-                        <div class="phone-display">غير متاح بعد</div>
-                        <p>خدمة الرد السريع وطلب الأدوية 24 ساعة طوال أيام الأسبوع من أي خط أرضي أو محمول في مصر.</p>
-                        <a href="tel:19850" class="btn btn-outline-white">اتصل الآن</a>
+                    <div class="contact-card hot-card social-card">
+                        <div class="c-icon"><i class="fa-solid fa-share-nodes"></i></div>
+                        <h3>تابعنا على السوشيال ميديا</h3>
+                        <p>كل أخبار العروض والمنتجات الجديدة أول بأول على صفحاتنا الرسمية.</p>
+                        <div class="social-links-row">
+                            <!-- TODO: استبدل href="#" برابط صفحة الفيسبوك بتاعتك -->
+                            <a href="#" target="_blank" class="social-icon-btn" title="فيسبوك"
+                                aria-label="صفحتنا على فيسبوك">
+                                <i class="fa-brands fa-facebook-f"></i>
+                            </a>
+                            <!-- TODO: استبدل href="#" برابط صفحة الانستجرام بتاعتك -->
+                            <a href="#" target="_blank" class="social-icon-btn" title="انستجرام"
+                                aria-label="صفحتنا على انستجرام">
+                                <i class="fa-brands fa-instagram"></i>
+                            </a>
+                            <!-- TODO: استبدل href="#" برابط صفحة تيك توك بتاعتك -->
+                            <a href="#" target="_blank" class="social-icon-btn" title="تيك توك"
+                                aria-label="صفحتنا على تيك توك">
+                                <i class="fa-brands fa-tiktok"></i>
+                            </a>
+                            <!-- TODO: استبدل href="#" برابط صفحة X (تويتر) بتاعتك -->
+                            <a href="#" target="_blank" class="social-icon-btn" title="X"
+                                aria-label="صفحتنا على إكس">
+                                <i class="fa-brands fa-x-twitter"></i>
+                            </a>
+                        </div>
                     </div>
                     <div class="contact-card whatsapp-card">
                         <div class="c-icon"><i class="fa-brands fa-whatsapp"></i></div>
@@ -1458,7 +1478,7 @@
                     </div>
                 </div>
 
-                <!-- Branches & Message Form Grid -->
+                <!-- Branch Locator -->
                 <div class="contact-interactive-grid">
                     <!-- Branch Locator Tabs -->
                     <div class="branches-container">
@@ -1467,55 +1487,13 @@
                             <p>اختر المحافظة لاستعراض الفروع وساعات العمل وأرقام التواصل المباشرة:</p>
                         </div>
 
-                        <div class="branch-tabs">
-                            <button class="branch-tab-btn active" onclick="showBranchCity('dakahlia')">فروع المنصورة</button>
+                        <div class="branch-tabs" id="branchTabs">
+                            <!-- Tabs generated dynamically per distinct city from Supabase -->
                         </div>
 
                         <div class="branch-list" id="branchesList">
                             <!-- Populated dynamically via JS -->
                         </div>
-                    </div>
-
-                    <!-- Contact Form -->
-                    <div class="contact-form-box">
-                        <div class="form-header">
-                            <h3><i class="fa-solid fa-paper-plane"></i> أرسل رسالة مباشرة</h3>
-                            <p>لديك استفسار، اقتراح، أو شكوى؟ تواصل معنا وسيتم الرد عليك سريعاً.</p>
-                        </div>
-
-                        <form id="contactUsForm" onsubmit="handleContactSubmit(event)">
-                            <div class="form-group">
-                                <label for="contactName">الاسم الكامل <span class="required">*</span></label>
-                                <input type="text" id="contactName" placeholder="اكتب اسمك هنا" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="contactPhone">رقم الهاتف <span class="required">*</span></label>
-                                <input type="tel" id="contactPhone" placeholder="01xxxxxxxxx"
-                                    pattern="^01[0125][0-9]{8}$" required>
-                            </div>
-                            <div class="form-group">
-                                <label for="contactEmail">البريد الإلكتروني (اختياري)</label>
-                                <input type="email" id="contactEmail" placeholder="example@domain.com">
-                            </div>
-                            <div class="form-group">
-                                <label for="contactSubject">نوع الرسالة <span class="required">*</span></label>
-                                <select id="contactSubject" required>
-                                    <option value="استفسار عن دواء أو منتج">استفسار عن دواء أو منتج</option>
-                                    <option value="اقتراح لتطوير الخدمة">اقتراح لتطوير الخدمة</option>
-                                    <option value="متابعة طلب دليفري">متابعة طلب دليفري</option>
-                                    <option value="شكوى">تقديم شكوى</option>
-                                    <option value="تعاقدات تأمين طبي وشركات">تعاقدات تأمين طبي وشركات</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="contactMessage">نص الرسالة <span class="required">*</span></label>
-                                <textarea id="contactMessage" rows="4" placeholder="اكتب تفاصيل رسالتك هنا..."
-                                    required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary btn-block">
-                                <i class="fa-solid fa-send"></i> إرسال الرسالة الآن
-                            </button>
-                        </form>
                     </div>
                 </div>
 
@@ -1525,16 +1503,8 @@
                         <h4><i class="fa-solid fa-location-crosshairs"></i> شبكة التوزيع وفروع العوضي </h4>
                         <span>تغطية لجميع الأحياء</span>
                     </div>
-                    <div class="map-visual-placeholder">
-                        <div class="map-pin pin-mansoura" style="top: 40%; right: 40%;" title="فرع طناح"><i class="fa-solid fa-hospital"></i>
-                            <span>فرع طناح (مركز المنصورة - الدقهلية)</span>
-                        </div>
-                        <div class="map-pin pin-mansoura" style="top: 55%; right: 55%;" title="فرع كفر طناح"><i class="fa-solid fa-hospital"></i>
-                            <span>فرع كفر طناح (مركز المنصورة - الدقهلية)</span>
-                        </div>
-                        <div class="map-overlay-text">
-                            <p><i class="fa-solid fa-truck-fast"></i>  خدمة توصيل يغطي طناح وكفر طناح والقرى المجاورة </p>
-                        </div>
+                    <div class="map-visual-placeholder" id="mapVisualPlaceholder">
+                        <!-- Pins + overlay text generated dynamically from Supabase branches -->
                     </div>
                 </div>
             </div>
@@ -1743,9 +1713,14 @@
                     <span>طريقة الاستلام:</span>
                     <span id="successDeliveryType">-</span>
                 </div>
+                <div class="summary-row" id="successTotalRow" style="display: none;">
+                    <span>الإجمالي:</span>
+                    <span id="successOrderTotal">-</span>
+                </div>
                 <div class="summary-row">
                     <span>الوقت المتوقع:</span>
-                    <span class="delivery-time-badge"><i class="fa-solid fa-clock"></i> خلال 30 - 45 دقيقة</span>
+                    <span class="delivery-time-badge"><i class="fa-solid fa-clock"></i> <span
+                            id="successEstimatedTime">خلال 30 - 45 دقيقة</span></span>
                 </div>
             </div>
 
