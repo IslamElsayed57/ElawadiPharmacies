@@ -3754,7 +3754,7 @@ body.dark-mode .cat-pill i {
 
     /* شريط الفلاتر – تمرير أفقي بدلاً من التكدس */
     .nahdi-category-nav {
-        flex-wrap: nowrap;
+        flex-wrap: wrap;
         overflow: visible;
         -webkit-overflow-scrolling: touch;
         padding-bottom: 0.8rem;
