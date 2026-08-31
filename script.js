@@ -421,6 +421,12 @@ function filterProductsByCategory(category) {
         menu.style.visibility = shouldOpen ? "visible" : "hidden";
         menu.style.pointerEvents = shouldOpen ? "auto" : "none";
         menu.style.transform = shouldOpen ? "translateY(0)" : "translateY(10px)";
+
+        // Keep the wrapper's own z-index in sync with its dropdown's
+        // visibility, so the open one always paints above sibling
+        // category pills instead of losing a z-index tie by DOM order.
+        const wrapper = menu.closest(".cat-item-wrapper");
+        if (wrapper) wrapper.classList.toggle("dropdown-open", shouldOpen);
     });
 
     renderProductsCatalog();
@@ -457,6 +463,7 @@ function filterBySubcategoryId(parentCategory, subcategoryId, subcategoryTitle) 
         menu.style.visibility = "hidden";
         menu.style.pointerEvents = "none";
         menu.style.transform = "translateY(10px)";
+        menu.closest(".cat-item-wrapper")?.classList.remove("dropdown-open");
     });
 
     showToast(`تمت التصفية حسب: ${subcategoryTitle}`, "success");

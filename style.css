@@ -3771,6 +3771,13 @@ body.dark-mode .cat-pill i {
 .cat-item-wrapper {
     position: relative;
     display: inline-block;
+    z-index: 1;
+}
+
+/* Raised only on the wrapper whose dropdown is currently open, so it
+   always paints above sibling pills instead of relying on a z-index
+   tie that gets decided by DOM order. Toggled in script.js. */
+.cat-item-wrapper.dropdown-open {
     z-index: 3000;
 }
 
