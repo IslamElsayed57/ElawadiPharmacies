@@ -3766,33 +3766,62 @@ body.dark-mode .cat-pill i {
         display: none; /* Chrome/Safari */
     }
 
-    /* نقل الـ chevron لأسفل لمنع اتساع الزرار */
-    .pill-chevron {
-        display: none;
-    }
+   /* ===== Mobile Categories Dropdown ===== */
 
-    .cat-pill {
-        padding: 0.55rem 1rem;
-        font-size: 0.88rem;
-        flex-shrink: 0;
-    }
+.cat-item-wrapper {
+    position: relative;
+    display: inline-block;
+}
 
-    /* قائمة الفئات الفرعية – عرض كامل تحت الزرار */
-    .subcat-dropdown-menu {
-        position: fixed;
-        top: auto;
-        bottom: 0;
-        right: 0;
-        left: 0;
-        width: 100%;
-        max-width: 100%;
-        min-width: unset;
-        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-        box-shadow: 0 -8px 30px rgba(0, 0, 0, 0.15);
-        z-index: 2000;
-        max-height: 70vh;
-        overflow-y: auto;
-    }
+.cat-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.55rem 1rem;
+    font-size: 0.88rem;
+}
+
+/* إظهار سهم الـ Category على الموبايل */
+.pill-chevron {
+    display: inline-block;
+    font-size: 0.7rem;
+    transition: transform 0.25s ease;
+}
+
+/* تدوير السهم عند فتح القائمة */
+.cat-pill.active .pill-chevron {
+    transform: rotate(180deg);
+}
+
+/* Subcategories تظهر تحت الـ Category مباشرة */
+.subcat-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    left: auto;
+
+    width: max-content;
+    min-width: 300px;
+    max-width: calc(100vw - 32px);
+
+    background: #FFFFFF;
+
+    border-radius: var(--radius-md);
+
+    box-shadow:
+        0 15px 35px rgba(0, 0, 0, 0.12),
+        0 5px 15px rgba(13, 138, 100, 0.08);
+
+    border: 1px solid var(--border-color);
+
+    z-index: 2000;
+
+    padding: 0.8rem;
+
+    max-height: 70vh;
+    overflow-y: auto;
+}
 
     /* شريط البحث والترتيب – عمود واحد */
     .catalog-toolbar {
