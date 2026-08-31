@@ -3798,7 +3798,8 @@ body.dark-mode .cat-pill i {
 /* Subcategories تظهر تحت الـ Category مباشرة */
 .subcat-dropdown-menu {
     position: absolute;
-    top: calc(100% + 8px);
+    bottom: calc(100% + 8px);
+    top: auto;
     right: 0;
     left: auto;
 
