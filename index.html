@@ -816,6 +816,15 @@
                                     <span class="location-status-badge" id="mainLocationStatus"></span>
                                     <input type="hidden" id="mainGpsCoordinates" value="">
                                 </div>
+                                <div class="form-group col-12">
+                                    <label for="orderDeliveryBranch">
+                                        <i class="fa-solid fa-map-pin"></i> اختر أقرب فرع لك <span
+                                            class="required">*</span>
+                                    </label>
+                                    <select id="orderDeliveryBranch" required>
+                                        <option value="" disabled selected>-- اختر الفرع الأقرب لعنوانك --</option>
+                                    </select>
+                                </div>
                                 <div class="address-fields-grid">
                                     <div class="form-group col-4">
                                         <label for="orderGov"><i class="fa-solid fa-city"></i> المحافظة <span
@@ -1674,6 +1683,13 @@
                                 <span>تحديد موقعي الحالي بدقة (GPS)</span>
                             </button>
                             <span class="location-status-badge" id="modalLocationStatus"></span>
+                        </div>
+                        <div class="form-group">
+                            <label for="modalDeliveryBranch"><i class="fa-solid fa-map-pin"></i> اختر أقرب فرع لك <span
+                                    class="required">*</span></label>
+                            <select id="modalDeliveryBranch" required>
+                                <option value="" disabled selected>-- اختر الفرع الأقرب لعنوانك --</option>
+                            </select>
                         </div>
                         <input type="text" id="modalAddressDetails"
                             placeholder="اكتب العنوان التفصيلي (المنطقة، الشارع، رقم العمارة والشقة)...">

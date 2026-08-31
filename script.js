@@ -219,6 +219,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // Initial products render (fetched live from Supabase)
     loadProductsCatalog();
 
+    // Populate the "nearest branch" delivery selects (main form + quick modal)
+    loadDeliveryBranchOptions();
+
     // Initial branches render
     showBranchCity("dakahlia");
 
@@ -713,6 +716,36 @@ function checkoutFromCart() {
 // --------------------------------------------------------------------------
 // 8. Medicine Booking & Delivery Toggle Logic
 // --------------------------------------------------------------------------
+async function loadDeliveryBranchOptions() {
+    const selects = [
+        document.getElementById("orderDeliveryBranch"),
+        document.getElementById("modalDeliveryBranch")
+    ].filter(Boolean);
+
+    if (selects.length === 0) return;
+
+    try {
+        const { data: branches, error } = await supabaseClient
+            .from("branches")
+            .select("id, name_ar")
+            .order("name_ar");
+
+        if (error) throw error;
+
+        const optionsHtml = (branches || [])
+            .map(b => `<option value="${b.id}">${b.name_ar}</option>`)
+            .join("");
+
+        selects.forEach(select => {
+            select.innerHTML =
+                `<option value="" disabled selected>-- اختر الفرع الأقرب لعنوانك --</option>` +
+                optionsHtml;
+        });
+    } catch (err) {
+        console.error("Failed to load branches for delivery selects:", err);
+    }
+}
+
 function toggleDeliveryFields(isDelivery) {
     const branchGroup = document.getElementById("branchSelectorGroup");
     const addressWrapper = document.getElementById("deliveryAddressWrapper");
@@ -784,9 +817,20 @@ async function handleMedicineOrderSubmit(event) {
         const landmark = document.getElementById("orderLandmark").value.trim();
         const gpsLink = document.getElementById("mainGpsCoordinates").value.trim();
 
+        const deliveryBranchEl = document.getElementById("orderDeliveryBranch");
+        selectedBranchId = deliveryBranchEl?.value || "";
+        const nearestBranchName =
+            deliveryBranchEl?.options[deliveryBranchEl.selectedIndex]?.text || "";
+
+        if (!selectedBranchId) {
+            showToast("يرجى اختيار أقرب فرع لك", "error");
+            return;
+        }
+
         deliveryText = "توصيل للمنزل";
 
         addressText =
+            `أقرب فرع: ${nearestBranchName}\n` +
             `المحافظة: ${gov}\n` +
             `المنطقة: ${city}\n` +
             `الشارع: ${street}\n` +
@@ -1102,12 +1146,22 @@ async function handleQuickRxModalSubmit(event) {
         const gpsLink =
             document.getElementById("modalGpsCoordinates")?.value.trim() || "";
 
+        const deliveryBranchEl = document.getElementById("modalDeliveryBranch");
+        selectedBranchId = deliveryBranchEl?.value || "";
+        const nearestBranchName =
+            deliveryBranchEl?.options[deliveryBranchEl.selectedIndex]?.text || "";
+
+        if (!selectedBranchId) {
+            showToast("يرجى اختيار أقرب فرع لك", "error");
+            return;
+        }
+
         deliveryDescription = "توصيل للمنزل";
 
+        address = `أقرب فرع: ${nearestBranchName}\n${address}`;
+
         if (gpsLink) {
-            address = address
-                ? `${address}\nGPS: ${gpsLink}`
-                : `GPS: ${gpsLink}`;
+            address = `${address}\nGPS: ${gpsLink}`;
         }
 
     } else {
