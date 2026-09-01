@@ -2501,7 +2501,8 @@ body.dark-mode .cat-pill i {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    object-position: center 20%;
+    background: #1f2d35;
     border-radius: 50%;
     display: block;
     box-shadow: 0 8px 25px rgba(13, 138, 100, 0.35);
