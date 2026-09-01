@@ -227,17 +227,6 @@ function renderCategories() {
     `;
 }
 
-        menu.style.display = "";
-        grid.innerHTML = list.map(s => `
-            <a href="javascript:void(0)" class="subcat-link"
-                onclick="filterBySubcategoryId('${slug}', '${s.id}', '${(s.name_ar || "").replace(/'/g, "\\'")}')">
-                <i class="fa-solid ${s.icon || 'fa-pills'}"></i>
-                <div><strong>${s.name_ar}</strong></div>
-            </a>
-        `).join("");
-    });
-}
-
 async function loadProductsCatalog() {
     try {
         const { data: categories, error: catError } = await supabaseClient
@@ -572,6 +561,56 @@ function renderProductsCatalog() {
 
 function filterProductsByCategory(category) {
 
+    function filterProductsByCategory(category) {
+    switchSection("products");
+
+    state.currentCategory = category;
+    clearSubcategoryFilter(false);
+
+    // Update pill buttons
+    const pills = document.querySelectorAll(".cat-pill");
+
+    pills.forEach(pill => {
+        if (pill.getAttribute("data-category") === category) {
+            pill.classList.add("active");
+        } else {
+            pill.classList.remove("active");
+        }
+    });
+
+    const clickedWrapper =
+        document
+            .querySelector(`.cat-item-wrapper .cat-pill[data-category="${category}"]`)
+            ?.closest(".cat-item-wrapper");
+
+    const clickedMenu =
+        clickedWrapper?.querySelector(".subcat-dropdown-menu");
+
+    const isCurrentlyOpen =
+        clickedMenu && clickedMenu.style.visibility === "visible";
+
+    document
+        .querySelectorAll(".cat-item-wrapper .subcat-dropdown-menu")
+        .forEach(menu => {
+
+            const shouldOpen =
+                menu === clickedMenu && !isCurrentlyOpen;
+
+            menu.style.opacity = shouldOpen ? "1" : "0";
+            menu.style.visibility = shouldOpen ? "visible" : "hidden";
+            menu.style.pointerEvents = shouldOpen ? "auto" : "none";
+            menu.style.transform =
+                shouldOpen ? "translateY(0)" : "translateY(10px)";
+
+            const wrapper = menu.closest(".cat-item-wrapper");
+
+            if (wrapper) {
+                wrapper.classList.toggle("dropdown-open", shouldOpen);
+            }
+        });
+
+    renderProductsCatalog();
+}
     // الانتقال إلى قسم المنتجات
     switchSection("products");
 
