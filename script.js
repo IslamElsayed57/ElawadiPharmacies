@@ -571,9 +571,29 @@ function renderProductsCatalog() {
 }
 
 function filterProductsByCategory(category) {
+
+    // الانتقال إلى قسم المنتجات
+    switchSection("products");
+
+    // تحديد القسم المختار
+    switchSection("products");
     state.currentCategory = category;
+
     clearSubcategoryFilter(false);
 
+    // Update pill buttons
+    const pills = document.querySelectorAll(".cat-pill");
+
+    pills.forEach(pill => {
+
+        if (pill.getAttribute("data-category") === category) {
+            pill.classList.add("active");
+        } else {
+            pill.classList.remove("active");
+        }
+
+    });
+    
     // Update pill buttons
     const pills = document.querySelectorAll(".cat-pill");
     pills.forEach(pill => {
