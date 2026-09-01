@@ -73,28 +73,159 @@ let SUBCATEGORIES_DATA = [];
  * .subcat-dropdown-menu with real, database-driven ones. Falls back to
  * hiding the dropdown entirely for a category that has no subcategories.
  */
-function renderSubcategoryDropdowns(categoryMap) {
-    const bySlug = {};
-    SUBCATEGORIES_DATA.forEach(s => {
-        const cat = categoryMap[s.category_id];
-        if (!cat) return;
-        if (!bySlug[cat.slug]) bySlug[cat.slug] = [];
-        bySlug[cat.slug].push(s);
-    });
+function getCategoryIcon(slug) {
 
-    document.querySelectorAll(".cat-item-wrapper").forEach(wrapper => {
-        const pillBtn = wrapper.querySelector(".cat-pill");
-        const menu = wrapper.querySelector(".subcat-dropdown-menu");
-        const grid = wrapper.querySelector(".subcat-grid");
-        if (!pillBtn || !menu || !grid) return;
+    const icons = {
+        medicines: "fa-pills",
+        skincare: "fa-wand-magic-sparkles",
+        haircare: "fa-feather",
+        vitamins: "fa-apple-whole",
+        baby: "fa-baby",
+        devices: "fa-stethoscope",
+        "medical-supplies": "fa-kit-medical"
+    };
 
-        const slug = pillBtn.getAttribute("data-category");
-        const list = bySlug[slug] || [];
+    return icons[slug] || "fa-layer-group";
+}
 
-        if (list.length === 0) {
-            menu.style.display = "none";
-            return;
+function escapeHtml(value) {
+
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function renderCategories() {
+
+    const nav = document.getElementById("categoriesNav");
+
+    if (!nav) return;
+
+    nav.innerHTML = `
+        
+        <!-- ALL -->
+        <div class="cat-item-wrapper">
+
+            <button
+                class="cat-pill active"
+                data-category="all"
+                onclick="filterProductsByCategory('all')">
+
+                <i class="fa-solid fa-border-all"></i>
+
+                <span>الكل</span>
+
+            </button>
+
+        </div>
+
+        ${
+            CATEGORIES_DATA.map(category => {
+
+                const subcategories = SUBCATEGORIES_DATA.filter(
+                    sub => sub.category_id === category.id
+                );
+
+                const icon = getCategoryIcon(category.slug);
+
+                return `
+
+                    <div class="cat-item-wrapper">
+
+                        <button
+                            class="cat-pill"
+                            data-category="${escapeHtml(category.slug)}"
+                            onclick="filterProductsByCategory('${escapeHtml(category.slug)}')">
+
+                            <i class="fa-solid ${icon}"></i>
+
+                            <span>
+                                ${escapeHtml(category.name_ar)}
+                            </span>
+
+                            ${
+                                subcategories.length > 0
+                                ? `<i class="fa-solid fa-chevron-down pill-chevron"></i>`
+                                : ""
+                            }
+
+                        </button>
+
+
+                        ${
+                            subcategories.length > 0
+                            ? `
+
+                                <div class="subcat-dropdown-menu">
+
+                                    <div class="subcat-header">
+
+                                        <span>
+
+                                            <i class="fa-solid ${icon}"></i>
+
+                                            ${escapeHtml(category.name_ar)}
+
+                                        </span>
+
+                                    </div>
+
+
+                                    <div class="subcat-grid">
+
+                                        ${
+                                            subcategories.map(sub => `
+
+                                                <a
+                                                    href="javascript:void(0)"
+                                                    class="subcat-link"
+                                                    onclick="filterBySubcategoryId(
+                                                        '${escapeHtml(category.slug)}',
+                                                        '${sub.id}',
+                                                        '${escapeHtml(sub.name_ar)}'
+                                                    )">
+
+                                                    <i class="fa-solid ${sub.icon || "fa-layer-group"}"></i>
+
+                                                    <div>
+
+                                                        <strong>
+                                                            ${escapeHtml(sub.name_ar)}
+                                                        </strong>
+
+                                                        ${
+                                                            sub.name_en
+                                                            ? `<span>${escapeHtml(sub.name_en)}</span>`
+                                                            : ""
+                                                        }
+
+                                                    </div>
+
+                                                </a>
+
+                                            `).join("")
+                                        }
+
+                                    </div>
+
+                                </div>
+
+                            `
+                            : ""
+                        }
+
+                    </div>
+
+                `;
+
+            }).join("")
         }
+
+    `;
+}
 
         menu.style.display = "";
         grid.innerHTML = list.map(s => `
@@ -133,7 +264,7 @@ async function loadProductsCatalog() {
         if (subError) throw subError;
 
         SUBCATEGORIES_DATA = subcats || [];
-        renderSubcategoryDropdowns(categoryMap);
+        renderCategories();
 
         const { data: products, error: prodError } = await supabaseClient
             .from("products")
