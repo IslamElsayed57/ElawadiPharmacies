@@ -73,158 +73,38 @@ let SUBCATEGORIES_DATA = [];
  * .subcat-dropdown-menu with real, database-driven ones. Falls back to
  * hiding the dropdown entirely for a category that has no subcategories.
  */
-function getCategoryIcon(slug) {
+function renderSubcategoryDropdowns(categoryMap) {
+    const bySlug = {};
+    SUBCATEGORIES_DATA.forEach(s => {
+        const cat = categoryMap[s.category_id];
+        if (!cat) return;
+        if (!bySlug[cat.slug]) bySlug[cat.slug] = [];
+        bySlug[cat.slug].push(s);
+    });
 
-    const icons = {
-        medicines: "fa-pills",
-        skincare: "fa-wand-magic-sparkles",
-        haircare: "fa-feather",
-        vitamins: "fa-apple-whole",
-        baby: "fa-baby",
-        devices: "fa-stethoscope",
-        "medical-supplies": "fa-kit-medical"
-    };
+    document.querySelectorAll(".cat-item-wrapper").forEach(wrapper => {
+        const pillBtn = wrapper.querySelector(".cat-pill");
+        const menu = wrapper.querySelector(".subcat-dropdown-menu");
+        const grid = wrapper.querySelector(".subcat-grid");
+        if (!pillBtn || !menu || !grid) return;
 
-    return icons[slug] || "fa-layer-group";
-}
+        const slug = pillBtn.getAttribute("data-category");
+        const list = bySlug[slug] || [];
 
-function escapeHtml(value) {
-
-    return String(value || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-}
-
-function renderCategories() {
-
-    const nav = document.getElementById("categoriesNav");
-
-    if (!nav) return;
-
-    nav.innerHTML = `
-        
-        <!-- ALL -->
-        <div class="cat-item-wrapper">
-
-            <button
-                class="cat-pill active"
-                data-category="all"
-                onclick="filterProductsByCategory('all')">
-
-                <i class="fa-solid fa-border-all"></i>
-
-                <span>الكل</span>
-
-            </button>
-
-        </div>
-
-        ${
-            CATEGORIES_DATA.map(category => {
-
-                const subcategories = SUBCATEGORIES_DATA.filter(
-                    sub => sub.category_id === category.id
-                );
-
-                const icon = getCategoryIcon(category.slug);
-
-                return `
-
-                    <div class="cat-item-wrapper">
-
-                        <button
-                            class="cat-pill"
-                            data-category="${escapeHtml(category.slug)}"
-                            onclick="filterProductsByCategory('${escapeHtml(category.slug)}')">
-
-                            <i class="fa-solid ${icon}"></i>
-
-                            <span>
-                                ${escapeHtml(category.name_ar)}
-                            </span>
-
-                            ${
-                                subcategories.length > 0
-                                ? `<i class="fa-solid fa-chevron-down pill-chevron"></i>`
-                                : ""
-                            }
-
-                        </button>
-
-
-                        ${
-                            subcategories.length > 0
-                            ? `
-
-                                <div class="subcat-dropdown-menu">
-
-                                    <div class="subcat-header">
-
-                                        <span>
-
-                                            <i class="fa-solid ${icon}"></i>
-
-                                            ${escapeHtml(category.name_ar)}
-
-                                        </span>
-
-                                    </div>
-
-
-                                    <div class="subcat-grid">
-
-                                        ${
-                                            subcategories.map(sub => `
-
-                                                <a
-                                                    href="javascript:void(0)"
-                                                    class="subcat-link"
-                                                    onclick="filterBySubcategoryId(
-                                                        '${escapeHtml(category.slug)}',
-                                                        '${sub.id}',
-                                                        '${escapeHtml(sub.name_ar)}'
-                                                    )">
-
-                                                    <i class="fa-solid ${sub.icon || "fa-layer-group"}"></i>
-
-                                                    <div>
-
-                                                        <strong>
-                                                            ${escapeHtml(sub.name_ar)}
-                                                        </strong>
-
-                                                        ${
-                                                            sub.name_en
-                                                            ? `<span>${escapeHtml(sub.name_en)}</span>`
-                                                            : ""
-                                                        }
-
-                                                    </div>
-
-                                                </a>
-
-                                            `).join("")
-                                        }
-
-                                    </div>
-
-                                </div>
-
-                            `
-                            : ""
-                        }
-
-                    </div>
-
-                `;
-
-            }).join("")
+        if (list.length === 0) {
+            menu.style.display = "none";
+            return;
         }
 
-    `;
+        menu.style.display = "";
+        grid.innerHTML = list.map(s => `
+            <a href="javascript:void(0)" class="subcat-link"
+                onclick="filterBySubcategoryId('${slug}', '${s.id}', '${(s.name_ar || "").replace(/'/g, "\\'")}')">
+                <i class="fa-solid ${s.icon || 'fa-pills'}"></i>
+                <div><strong>${s.name_ar}</strong></div>
+            </a>
+        `).join("");
+    });
 }
 
 async function loadProductsCatalog() {
@@ -253,7 +133,7 @@ async function loadProductsCatalog() {
         if (subError) throw subError;
 
         SUBCATEGORIES_DATA = subcats || [];
-        renderCategories();
+        renderSubcategoryDropdowns(categoryMap);
 
         const { data: products, error: prodError } = await supabaseClient
             .from("products")
@@ -560,79 +440,9 @@ function renderProductsCatalog() {
 }
 
 function filterProductsByCategory(category) {
-
-    function filterProductsByCategory(category) {
-    switchSection("products");
-
     state.currentCategory = category;
     clearSubcategoryFilter(false);
 
-    // Update pill buttons
-    const pills = document.querySelectorAll(".cat-pill");
-
-    pills.forEach(pill => {
-        if (pill.getAttribute("data-category") === category) {
-            pill.classList.add("active");
-        } else {
-            pill.classList.remove("active");
-        }
-    });
-
-    const clickedWrapper =
-        document
-            .querySelector(`.cat-item-wrapper .cat-pill[data-category="${category}"]`)
-            ?.closest(".cat-item-wrapper");
-
-    const clickedMenu =
-        clickedWrapper?.querySelector(".subcat-dropdown-menu");
-
-    const isCurrentlyOpen =
-        clickedMenu && clickedMenu.style.visibility === "visible";
-
-    document
-        .querySelectorAll(".cat-item-wrapper .subcat-dropdown-menu")
-        .forEach(menu => {
-
-            const shouldOpen =
-                menu === clickedMenu && !isCurrentlyOpen;
-
-            menu.style.opacity = shouldOpen ? "1" : "0";
-            menu.style.visibility = shouldOpen ? "visible" : "hidden";
-            menu.style.pointerEvents = shouldOpen ? "auto" : "none";
-            menu.style.transform =
-                shouldOpen ? "translateY(0)" : "translateY(10px)";
-
-            const wrapper = menu.closest(".cat-item-wrapper");
-
-            if (wrapper) {
-                wrapper.classList.toggle("dropdown-open", shouldOpen);
-            }
-        });
-
-    renderProductsCatalog();
-}
-    // الانتقال إلى قسم المنتجات
-    switchSection("products");
-
-    // تحديد القسم المختار
-    switchSection("products");
-    state.currentCategory = category;
-
-    clearSubcategoryFilter(false);
-
-    // Update pill buttons
-    const pills = document.querySelectorAll(".cat-pill");
-
-    pills.forEach(pill => {
-
-        if (pill.getAttribute("data-category") === category) {
-            pill.classList.add("active");
-        } else {
-            pill.classList.remove("active");
-        }
-
-    });
-    
     // Update pill buttons
     const pills = document.querySelectorAll(".cat-pill");
     pills.forEach(pill => {

@@ -407,12 +407,252 @@
                 </div>
 
                 <!-- Interactive Filter Navigation with Hover Subcategories -->
-                <!-- Interactive Filter Navigation -->
-                <div class="nahdi-category-nav" id="categoriesNav">
+                <div class="nahdi-category-nav">
+                    <!-- All -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill active" data-category="all" onclick="filterProductsByCategory('all')">
+                            <i class="fa-solid fa-border-all"></i>
+                            <span>الكل</span>
+                        </button>
+                    </div>
 
-                <!-- Categories will be loaded from Supabase by JavaScript -->
+                    <!-- Medicines -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="medicines"
+                            onclick="filterProductsByCategory('medicines')">
+                            <i class="fa-solid fa-pills"></i>
+                            <span>الأدوية والعلاجات</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-pills"></i> فئات الأدوية التخصصية</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'أدوية القلب وضغط الدم', 'ضغط')">
+                                    <i class="fa-solid fa-heart-pulse"></i>
+                                    <div>
+                                        <strong>أدوية القلب وضغط الدم</strong>
+                                        <span>كونكور، موسعات الشرايين، والقلب</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'المضادات الحيوية والمسكنات', 'مسكن')">
+                                    <i class="fa-solid fa-capsules"></i>
+                                    <div>
+                                        <strong>المضادات الحيوية والمسكنات</strong>
+                                        <span>بنادول إكسترا، أوجمنتين 1 جم</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'أدوية السكر والأنسولين', 'سكر')">
+                                    <i class="fa-solid fa-syringe"></i>
+                                    <div>
+                                        <strong>أدوية السكر والأنسولين</strong>
+                                        <span>منظمات السكر، والأنسولين المبرد</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('medicines', 'نزلات البرد والاحتقان', 'استحلاب')">
+                                    <i class="fa-solid fa-head-side-cough"></i>
+                                    <div>
+                                        <strong>البرد والأنفلونزا والحلق</strong>
+                                        <span>ستربسلس بالعسل، مضادات الاحتقان</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
 
+                    <!-- Skincare -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="skincare"
+                            onclick="filterProductsByCategory('skincare')">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>العناية بالبشرة</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-wand-magic-sparkles"></i> منتجات العناية بالبشرة</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'غسولات ومنظفات الوجه', 'غسول')">
+                                    <i class="fa-solid fa-pump-soap"></i>
+                                    <div>
+                                        <strong>غسولات ومنظفات الوجه</strong>
+                                        <span>سيرافيه، بيوديرما ميسيلار سينسيبيو</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'واقيات الشمس والحماية SPF50+', 'واقي شمس')">
+                                    <i class="fa-solid fa-sun"></i>
+                                    <div>
+                                        <strong>واقيات الشمس (SPF50+)</strong>
+                                        <span>لاروش بوزيه أنثيليوس، سوائل حماية</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'كريمات وسيرومات الترطيب', 'مرطب')">
+                                    <i class="fa-solid fa-pump-medical"></i>
+                                    <div>
+                                        <strong>الترطيب وسيرومات النضارة</strong>
+                                        <span>بيبانثين، هيالورونيك وفيتامين C</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('skincare', 'مزيلات المكياج والتنظيف العميق', 'ميسيلار')">
+                                    <i class="fa-solid fa-sparkles"></i>
+                                    <div>
+                                        <strong>تنظيف البشرة ومزيل المكياج</strong>
+                                        <span>ماء ميسيلار وتونر مهدئ للبشرة</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Haircare -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="haircare"
+                            onclick="filterProductsByCategory('haircare')">
+                            <i class="fa-solid fa-feather"></i>
+                            <span>العناية بالشعر</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-feather"></i> أقسام العناية بالشعر</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('haircare', 'علاجات تساقط الشعر والإنبات', 'تساقط')">
+                                    <i class="fa-solid fa-feather-pointed"></i>
+                                    <div>
+                                        <strong>علاج تساقط الشعر والإنبات</strong>
+                                        <span>سيروم دكتور ميركل، محفزات النمو</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('haircare', 'شامبو علاج القشرة والفروة', 'قشرة')">
+                                    <i class="fa-solid fa-spa"></i>
+                                    <div>
+                                        <strong>علاج القشرة وحكة الفروة</strong>
+                                        <span>فيشي ديركوس الطبي، شامبو ضد القشرة</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('haircare', 'الشامبو والبلسم المغذي', 'شامبو')">
+                                    <i class="fa-solid fa-bottle-droplet"></i>
+                                    <div>
+                                        <strong>الشامبو والبلسم المغذي</strong>
+                                        <span>تركيبات خالية من السلفات والبارابين</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vitamins -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="vitamins"
+                            onclick="filterProductsByCategory('vitamins')">
+                            <i class="fa-solid fa-apple-whole"></i>
+                            <span>الفيتامينات والمناعة</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-apple-whole"></i> الفيتامينات والمكملات</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('vitamins', 'مقويات المناعة والمالتي فيتامين', 'سنتروم')">
+                                    <i class="fa-solid fa-shield-virus"></i>
+                                    <div>
+                                        <strong>مقويات المناعة والمالتي فيتامين</strong>
+                                        <span>سنتروم لوتين، فيتامين سي وزنك</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('vitamins', 'أوميجا 3 وزيوت السمك', 'أوميجا')">
+                                    <i class="fa-solid fa-fish"></i>
+                                    <div>
+                                        <strong>أوميجا 3 وزيت السمك</strong>
+                                        <span>أوميجا 3 بلس لصحة القلب والذاكرة</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mother & Baby -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="baby" onclick="filterProductsByCategory('baby')">
+                            <i class="fa-solid fa-baby"></i>
+                            <span>الأم والطفل</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-baby"></i> مستلزمات الأم والطفل</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('baby', 'حفاضات وعناية الطفل', 'حفاض')">
+                                    <i class="fa-solid fa-baby"></i>
+                                    <div>
+                                        <strong>حفاضات ومناديل الأطفال</strong>
+                                        <span>بامبرز بريميوم كير، مناديل مبللة</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('baby', 'ألبان وأغذية الرضع', 'حليب')">
+                                    <i class="fa-solid fa-baby-carriage"></i>
+                                    <div>
+                                        <strong>ألبان وأغذية الرضع</strong>
+                                        <span>أبتاميل 1 للرضع، أغذية النمو</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Devices -->
+                    <div class="cat-item-wrapper">
+                        <button class="cat-pill" data-category="devices" onclick="filterProductsByCategory('devices')">
+                            <i class="fa-solid fa-stethoscope"></i>
+                            <span>الأجهزة والمستلزمات</span>
+                            <i class="fa-solid fa-chevron-down pill-chevron"></i>
+                        </button>
+                        <div class="subcat-dropdown-menu">
+                            <div class="subcat-header">
+                                <span><i class="fa-solid fa-stethoscope"></i> الأجهزة الطبية المنزلية</span>
+                            </div>
+                            <div class="subcat-grid">
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('devices', 'أجهزة وشرائط قياس السكر', 'سكر')">
+                                    <i class="fa-solid fa-gauge-high"></i>
+                                    <div>
+                                        <strong>أجهزة وشرائط قياس السكر</strong>
+                                        <span>أكوا تشيك إنستانت + 50 شريط</span>
+                                    </div>
+                                </a>
+                                <a href="javascript:void(0)" class="subcat-link"
+                                    onclick="filterBySubcategory('devices', 'أجهزة قياس ضغط الدم الديجيتال', 'ضغط')">
+                                    <i class="fa-solid fa-heart-circle-bolt"></i>
+                                    <div>
+                                        <strong>أجهزة قياس ضغط الدم</strong>
+                                        <span>بيورير BM28 ألماني أصلي ديجيتال</span>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
+
                 <!-- Active Subcategory Filter Indicator Badge -->
                 <div class="active-subcat-bar" id="activeSubcatBar" style="display: none;">
                     <div class="subcat-filter-info">
