@@ -73,38 +73,66 @@ let SUBCATEGORIES_DATA = [];
  * .subcat-dropdown-menu with real, database-driven ones. Falls back to
  * hiding the dropdown entirely for a category that has no subcategories.
  */
-function renderSubcategoryDropdowns(categoryMap) {
-    const bySlug = {};
+/**
+ * Builds the entire category navigation bar (one pill per active row in
+ * CATEGORIES_DATA, each with its own subcategory dropdown built from
+ * SUBCATEGORIES_DATA) and injects it into #categoryNav, right after the
+ * static "All" pill. Re-running this replaces all previously generated
+ * pills, so it's safe to call again after re-fetching categories.
+ */
+function renderCategoryNav() {
+    const nav = document.getElementById("categoryNav");
+    if (!nav) return;
+
+    const allPillWrapper = nav.querySelector(".cat-item-wrapper");
+
+    const byCategory = {};
     SUBCATEGORIES_DATA.forEach(s => {
-        const cat = categoryMap[s.category_id];
-        if (!cat) return;
-        if (!bySlug[cat.slug]) bySlug[cat.slug] = [];
-        bySlug[cat.slug].push(s);
+        if (!byCategory[s.category_id]) byCategory[s.category_id] = [];
+        byCategory[s.category_id].push(s);
     });
 
-    document.querySelectorAll(".cat-item-wrapper").forEach(wrapper => {
-        const pillBtn = wrapper.querySelector(".cat-pill");
-        const menu = wrapper.querySelector(".subcat-dropdown-menu");
-        const grid = wrapper.querySelector(".subcat-grid");
-        if (!pillBtn || !menu || !grid) return;
+    const categoryIconMap = {
+        medicines: "fa-pills",
+        "beauty-care": "fa-wand-magic-sparkles",
+        "personal-care": "fa-pump-soap",
+        skincare: "fa-hand-sparkles",
+        devices: "fa-stethoscope",
+        haircare: "fa-scissors",
+        baby: "fa-baby-carriage",
+        "medical-supplies": "fa-kit-medical"
+    };
 
-        const slug = pillBtn.getAttribute("data-category");
-        const list = bySlug[slug] || [];
+    const generatedHtml = CATEGORIES_DATA.map(cat => {
+        const subcats = byCategory[cat.id] || [];
+        const icon = categoryIconMap[cat.slug] || "fa-layer-group";
 
-        if (list.length === 0) {
-            menu.style.display = "none";
-            return;
-        }
-
-        menu.style.display = "";
-        grid.innerHTML = list.map(s => `
+        const subcatGridHtml = subcats.map(s => `
             <a href="javascript:void(0)" class="subcat-link"
-                onclick="filterBySubcategoryId('${slug}', '${s.id}', '${(s.name_ar || "").replace(/'/g, "\\'")}')">
+                onclick="filterBySubcategoryId('${cat.slug}', '${s.id}', '${(s.name_ar || "").replace(/'/g, "\\'")}')">
                 <i class="fa-solid ${s.icon || 'fa-pills'}"></i>
                 <div><strong>${s.name_ar}</strong></div>
             </a>
         `).join("");
-    });
+
+        return `
+            <div class="cat-item-wrapper">
+                <button class="cat-pill" data-category="${cat.slug}" onclick="filterProductsByCategory('${cat.slug}')">
+                    <i class="fa-solid ${icon}"></i>
+                    <span>${cat.name_ar}</span>
+                    ${subcats.length > 0 ? '<i class="fa-solid fa-chevron-down pill-chevron"></i>' : ""}
+                </button>
+                ${subcats.length > 0 ? `
+                <div class="subcat-dropdown-menu">
+                    <div class="subcat-grid">${subcatGridHtml}</div>
+                </div>` : ""}
+            </div>
+        `;
+    }).join("");
+
+    nav.innerHTML = "";
+    if (allPillWrapper) nav.appendChild(allPillWrapper);
+    nav.insertAdjacentHTML("beforeend", generatedHtml);
 }
 
 async function loadProductsCatalog() {
@@ -133,7 +161,7 @@ async function loadProductsCatalog() {
         if (subError) throw subError;
 
         SUBCATEGORIES_DATA = subcats || [];
-        renderSubcategoryDropdowns(categoryMap);
+        renderCategoryNav();
 
         const { data: products, error: prodError } = await supabaseClient
             .from("products")
