@@ -856,6 +856,7 @@ body.dark-mode .form-group textarea {
 
 body.dark-mode .search-input-wrapper input,
 body.dark-mode .search-category-dropdown select {
+    background-color: var(--bg-surface);
     color: var(--text-main);
 }
 
