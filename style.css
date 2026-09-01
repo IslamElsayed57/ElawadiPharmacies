@@ -3292,7 +3292,7 @@ body.dark-mode .cat-pill i {
     width: 100%;
     max-width: 420px;
     height: 100%;
-    background-color: #FFFFFF;
+    background-color: var(--bg-surface);
     box-shadow: var(--shadow-lg);
     display: flex;
     flex-direction: column;
