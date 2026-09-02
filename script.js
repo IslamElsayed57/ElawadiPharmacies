@@ -232,24 +232,11 @@ async function loadProductsCatalog() {
     }
 }
 
-const BRANCHES_DATA = {
-    dakahlia: [
-        {
-            name: "فرع طناح - المنصورة - الدقهلية",
-            address: "الشارع الرئيسي - بجوار المجمع الطبي، طناح، مركز المنصورة، الدقهلية",
-            phone: "050-2450001",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. إسلام السيد"
-        },
-        {
-            name: "فرع كفر طناح - المنصورة - الدقهلية",
-            address: "طريق كفر طناح الرئيسي - أمام المسجد الكبير، كفر طناح، المنصورة، الدقهلية",
-            phone: "050-2450002",
-            hours: "24 ساعة يومياً (خدمة التوصيل متاحة)",
-            manager: "د. أحمد العوضي"
-        }
-    ]
-};
+// NOTE: the old hardcoded BRANCHES_DATA object was removed — the clinic
+// booking branch dropdown now uses LIVE_CLINIC_BRANCHES (fetched from
+// Supabase's own "clinic_branches" table, kept separate from the pharmacy
+// "branches" table so the two never get mixed up). See
+// populateClinicBranchOptions() further down.
 
 // --------------------------------------------------------------------------
 // 2. Application State
@@ -304,7 +291,7 @@ function calculateDeliveryFee(subtotal) {
 // --------------------------------------------------------------------------
 // 3. App Initialization
 // --------------------------------------------------------------------------
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
     setupThemeToggle();
 
     // Initial products render (fetched live from Supabase)
@@ -320,14 +307,16 @@ document.addEventListener("DOMContentLoaded", () => {
     // Load live delivery fee from Supabase settings table
     loadDeliveryFee();
 
-    // Initial branches render (live from Supabase — branches list + map)
-    loadLiveBranches();
+    // Load pharmacy branches (used by delivery/pickup selects, the branch
+    // locator section, and the map — NOT the clinic booking widget).
+    await loadLiveBranches();
 
-    // Populate clinic branch dropdown
+    // Load clinic branches (separate table: "clinic_branches") and doctors
+    // — both feed only the "حجز استشارات طبية" section, kept fully
+    // independent from the pharmacy branches above.
+    await loadClinicBranches();
     populateClinicBranchOptions();
-
-    // Initial doctor slots render (also populates doctor list for the default branch)
-    onDoctorSelectChange("أ.د. شريف عبد الرحمن");
+    await loadDoctorsDirectory();
 
     // Check URL hash for routing
     handleInitialRouting();
@@ -1508,43 +1497,146 @@ function closeSuccessModal() {
 // --------------------------------------------------------------------------
 // 10. Medical Consultations & Clinic Booking Logic
 // --------------------------------------------------------------------------
-const DOCTORS_DATA = [
-    {
-        name: "أ.د. شريف عبد الرحمن",
-        specialty: "باطنة وسكر وغدد صماء",
-        branch: "فرع طناح - المنصورة - الدقهلية",
-        fee: 250,
-        slots: ["السبت 06:00 م", "الإثنين 07:30 م", "الأربعاء 05:00 م"]
-    },
-    {
-        name: "د. مي مجدي",
-        specialty: "أمراض جلدية وتجميل وليزر",
-        branch: "فرع كفر طناح - المنصورة - الدقهلية",
-        fee: 300,
-        slots: ["الأحد 04:00 م", "الثلاثاء 06:30 م", "الخميس 05:00 م"]
-    },
-    {
-        name: "د. حسام الدين فاروق",
-        specialty: "طب الأطفال وحديثي الولادة",
-        branch: "فرع طناح - المنصورة - الدقهلية",
-        fee: 220,
-        slots: ["السبت 02:00 م", "الإثنين 03:30 م", "الأربعاء 02:00 م"]
-    },
-    {
-        name: "د. ندى الشريف",
-        specialty: "تغذية علاجية وسمنة ونحافة",
-        branch: "فرع كفر طناح - المنصورة - الدقهلية",
-        fee: 200,
-        slots: ["الإثنين 05:00 م", "الخميس 07:00 م", "الجمعة 04:00 م"]
-    },
-    {
-        name: "د. طارق مراد",
-        specialty: "جراحة العظام والمفاصل",
-        branch: "فرع طناح - المنصورة - الدقهلية",
-        fee: 280,
-        slots: ["السبت 05:00 م", "الثلاثاء 07:00 م"]
+// DOCTORS_DATA is now fetched live from Supabase (table: "doctors", joined
+// with "clinic_branches") instead of being hardcoded. Any doctor added, edited, or
+// deactivated (is_active) in Supabase appears here automatically on the
+// next page load — see loadDoctorsDirectory() below.
+let DOCTORS_DATA = [];
+
+// LIVE_CLINIC_BRANCHES holds the clinic-only branches (table:
+// "clinic_branches"). Kept completely separate from LIVE_BRANCHES (the
+// pharmacy branches table) so the clinic booking form never mixes the two.
+let LIVE_CLINIC_BRANCHES = [];
+
+/**
+ * Fetches active clinic branches from Supabase's "clinic_branches" table.
+ * Feeds only the clinic booking dropdown — every other section of the
+ * site (delivery, pickup, branch locator, map) keeps using the pharmacy
+ * "branches" table via loadLiveBranches(), untouched.
+ */
+async function loadClinicBranches() {
+    try {
+        const { data, error } = await supabaseClient
+            .from("clinic_branches")
+            .select("id, name_ar, city, address, phone, is_active")
+            .eq("is_active", true)
+            .order("name_ar");
+
+        if (error) throw error;
+
+        LIVE_CLINIC_BRANCHES = data || [];
+    } catch (err) {
+        console.error("Failed to load clinic branches:", err);
+        LIVE_CLINIC_BRANCHES = [];
     }
-];
+}
+
+/**
+ * Fetches active doctors from Supabase (joined with their clinic branch
+ * name from "clinic_branches" — NOT the pharmacy "branches" table),
+ * normalizes them into the shape the booking widget expects, then renders
+ * the doctors grid and pre-fills the booking form with the first branch
+ * that actually has doctors.
+ */
+async function loadDoctorsDirectory() {
+    try {
+        const { data, error } = await supabaseClient
+            .from("doctors")
+            .select("*, clinic_branches(id, name_ar)")
+            .eq("is_active", true)
+            .order("created_at", { ascending: true });
+
+        if (error) throw error;
+
+        DOCTORS_DATA = (data || []).map(d => ({
+            id: d.id,
+            name: d.name_ar,
+            specialty: d.specialty || "",
+            title: d.title || "",
+            branchId: d.branch_id,
+            branchName: d.clinic_branches ? d.clinic_branches.name_ar : "",
+            fee: Number(d.fee) || 0,
+            avatarIcon: d.avatar_icon || "fa-user-doctor",
+            // Just the day names (e.g. "السبت"), no times, per the site's
+            // customer-facing booking flow.
+            availableDays: Array.isArray(d.available_days) ? d.available_days : []
+        }));
+
+        renderDoctorsGrid();
+
+        // Pre-fill the booking form with the first branch that has doctors
+        if (DOCTORS_DATA.length > 0) {
+            const branchSelect = document.getElementById("clinicBranchInput");
+            const defaultBranchId = DOCTORS_DATA[0].branchId;
+            if (branchSelect) branchSelect.value = defaultBranchId;
+            populateDoctorOptionsForBranch(defaultBranchId, DOCTORS_DATA[0].id);
+        } else {
+            renderInteractiveDaySlots([]);
+        }
+    } catch (err) {
+        console.error("Load doctors directory error:", err);
+        const grid = document.getElementById("doctorsGrid");
+        if (grid) {
+            grid.innerHTML = `
+                <div style="text-align:center; padding:2rem 1rem; color:#EF4444;">
+                    <i class="fa-solid fa-triangle-exclamation" style="font-size:1.5rem; margin-bottom:0.5rem;"></i>
+                    <p>تعذر تحميل قائمة الأطباء حالياً. برجاء تحديث الصفحة أو المحاولة لاحقاً.</p>
+                </div>
+            `;
+        }
+    }
+}
+
+/**
+ * Renders one card per active doctor into #doctorsGrid, showing only the
+ * available DAYS (no times) per the customer-site requirement.
+ */
+function renderDoctorsGrid() {
+    const grid = document.getElementById("doctorsGrid");
+    if (!grid) return;
+
+    if (DOCTORS_DATA.length === 0) {
+        grid.innerHTML = `<p style="color: var(--text-muted); padding: 1rem;">لا يوجد أطباء متاحون حالياً.</p>`;
+        return;
+    }
+
+    grid.innerHTML = DOCTORS_DATA.map(doc => {
+        const daysHtml = doc.availableDays.map(day => `
+            <span class="slot-pill"><i class="fa-solid fa-calendar-day"></i> ${day}</span>
+        `).join("");
+
+        return `
+            <div class="doctor-card">
+                <div class="doctor-card-top">
+                    <div class="doctor-avatar">
+                        <i class="fa-solid ${doc.avatarIcon}"></i>
+                    </div>
+                    <div class="doctor-meta">
+                        <span class="doc-specialty-badge">${doc.specialty}</span>
+                        <h4 class="doc-name">${doc.name}</h4>
+                        <p class="doc-title">${doc.title}</p>
+                        <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> ${doc.branchName || "غير محدد"}</span>
+                    </div>
+                </div>
+                <div class="doctor-schedule-box">
+                    <h5><i class="fa-solid fa-calendar-days"></i> الأيام المتاحة للكشف:</h5>
+                    <div class="schedule-slots-pills">
+                        ${daysHtml || '<span class="slot-pill">لم تُحدد أيام بعد</span>'}
+                    </div>
+                </div>
+                <div class="doctor-card-footer">
+                    <div class="doc-fee">
+                        <span>قيمة الكشف:</span>
+                        <strong>${doc.fee.toFixed(0)} ج.م</strong>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="selectDoctorForBooking('${doc.id}')">
+                        <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join("");
+}
 
 function switchConsultationMode(mode) {
     const clinicView = document.getElementById("clinicBookingView");
@@ -1565,19 +1657,17 @@ function switchConsultationMode(mode) {
     }
 }
 
-function selectDoctorForBooking(docName, specialty, branch, slots) {
+function selectDoctorForBooking(doctorId) {
     // Switch to clinic view if not already
     switchConsultationMode("clinic");
 
-    // Prefer the canonical branch name from DOCTORS_DATA (the branch param
-    // passed from the doctor card can be a shortened label like "فرع كفر طناح").
-    const docObj = DOCTORS_DATA.find(d => d.name === docName);
-    const branchName = docObj ? docObj.branch : branch;
+    const docObj = DOCTORS_DATA.find(d => d.id === doctorId);
+    if (!docObj) return;
 
     const branchSelect = document.getElementById("clinicBranchInput");
-    if (branchSelect) branchSelect.value = branchName;
+    if (branchSelect) branchSelect.value = docObj.branchId;
 
-    populateDoctorOptionsForBranch(branchName, docName);
+    populateDoctorOptionsForBranch(docObj.branchId, doctorId);
 
     // Scroll to form smoothly
     const formCard = document.getElementById("clinicBookingFormCard");
@@ -1585,89 +1675,99 @@ function selectDoctorForBooking(docName, specialty, branch, slots) {
         formCard.scrollIntoView({ behavior: "smooth" });
     }
 
-    showToast(`تم اختيار ${docName} - يرجى تحديد وقت الكشف المناسب وتأكيد الحجز`, "info");
+    showToast(`تم اختيار ${docObj.name} - يرجى تحديد اليوم المناسب وتأكيد الحجز`, "info");
 }
 
+// Populates the clinic branch dropdown from the live Supabase
+// "clinic_branches" table (LIVE_CLINIC_BRANCHES, loaded by
+// loadClinicBranches()) — a table dedicated to clinic branches so it
+// never gets mixed up with the pharmacy "branches" table used everywhere
+// else on the site (delivery, pickup, branch locator, map...).
 function populateClinicBranchOptions() {
     const branchSelect = document.getElementById("clinicBranchInput");
     if (!branchSelect) return;
 
-    // Flatten all branches from every city in BRANCHES_DATA
-    const allBranches = Object.values(BRANCHES_DATA).flat();
+    if (LIVE_CLINIC_BRANCHES.length === 0) {
+        branchSelect.innerHTML = `<option value="" disabled selected>لا توجد فروع عيادات متاحة حالياً</option>`;
+        return;
+    }
 
-    branchSelect.innerHTML = allBranches.map(b => `
-        <option value="${b.name}">${b.name}</option>
+    branchSelect.innerHTML = LIVE_CLINIC_BRANCHES.map(b => `
+        <option value="${b.id}">${b.name_ar}</option>
     `).join("");
 }
 
 // Fills the doctor dropdown with only the doctors who work at the given
-// branch, and auto-selects one (preferring `preferredDocName` if it's
-// actually available there), then renders that doctor's time slots.
-function populateDoctorOptionsForBranch(branchName, preferredDocName) {
+// branch (matched by branch_id), and auto-selects one (preferring
+// `preferredDoctorId` if it's actually available there), then renders
+// that doctor's available days.
+function populateDoctorOptionsForBranch(branchId, preferredDoctorId) {
     const docSelect = document.getElementById("clinicDocSelect");
     if (!docSelect) return;
 
-    const doctorsInBranch = DOCTORS_DATA.filter(d => d.branch === branchName);
+    const doctorsInBranch = DOCTORS_DATA.filter(d => d.branchId === branchId);
 
     if (doctorsInBranch.length === 0) {
         docSelect.innerHTML = `<option value="">لا يوجد أطباء متاحون في هذا الفرع حالياً</option>`;
-        renderInteractiveTimeSlots([]);
+        renderInteractiveDaySlots([]);
         return;
     }
 
     docSelect.innerHTML = doctorsInBranch.map(d => `
-        <option value="${d.name}">${d.name} (${d.specialty})</option>
+        <option value="${d.id}">${d.name} (${d.specialty})</option>
     `).join("");
 
-    const docToSelect = doctorsInBranch.find(d => d.name === preferredDocName) || doctorsInBranch[0];
-    docSelect.value = docToSelect.name;
-    renderInteractiveTimeSlots(docToSelect.slots);
+    const docToSelect = doctorsInBranch.find(d => d.id === preferredDoctorId) || doctorsInBranch[0];
+    docSelect.value = docToSelect.id;
+    renderInteractiveDaySlots(docToSelect.availableDays);
 }
 
 // Called when the user manually picks a different branch: narrows the
 // doctor list down to that branch's doctors.
-function onBranchSelectChange(branchName) {
-    populateDoctorOptionsForBranch(branchName);
+function onBranchSelectChange(branchId) {
+    populateDoctorOptionsForBranch(branchId);
 }
 
-function onDoctorSelectChange(docName) {
-    const docObj = DOCTORS_DATA.find(d => d.name === docName);
+function onDoctorSelectChange(doctorId) {
+    const docObj = DOCTORS_DATA.find(d => d.id === doctorId);
     const branchSelect = document.getElementById("clinicBranchInput");
 
     if (docObj) {
-        if (branchSelect) branchSelect.value = docObj.branch;
-        populateDoctorOptionsForBranch(docObj.branch, docName);
+        if (branchSelect) branchSelect.value = docObj.branchId;
+        populateDoctorOptionsForBranch(docObj.branchId, doctorId);
     }
 }
 
-function renderInteractiveTimeSlots(slots) {
-    const container = document.getElementById("interactiveTimeSlotsContainer");
-    const inputHidden = document.getElementById("selectedTimeSlotInput");
+// Renders the available-DAYS picker (no times), per the site's customer-
+// facing requirement — the actual visit time gets coordinated by phone.
+function renderInteractiveDaySlots(days) {
+    const container = document.getElementById("interactiveDaySlotsContainer");
+    const inputHidden = document.getElementById("selectedDayInput");
     if (!container) return;
 
-    if (!slots || slots.length === 0) {
-        container.innerHTML = `<p class="text-muted">لا توجد مواعيد متاحة حالياً لهذا الطبيب.</p>`;
+    if (!days || days.length === 0) {
+        container.innerHTML = `<p class="text-muted">لا توجد أيام متاحة حالياً لهذا الطبيب.</p>`;
         if (inputHidden) inputHidden.value = "";
         return;
     }
 
-    container.innerHTML = slots.map((slot, index) => {
+    container.innerHTML = days.map((day, index) => {
         const isFirst = index === 0 ? "selected" : "";
         return `
-            <button type="button" class="time-slot-btn ${isFirst}" onclick="selectTimeSlot('${slot}', this)">
+            <button type="button" class="time-slot-btn ${isFirst}" onclick="selectDaySlot('${day}', this)">
                 <i class="fa-solid fa-calendar-day"></i>
-                <span>${slot}</span>
+                <span>${day}</span>
             </button>
         `;
     }).join("");
 
-    // Set first slot as default value
+    // Set first day as default value
     if (inputHidden) {
-        inputHidden.value = slots[0];
+        inputHidden.value = days[0];
     }
 }
 
-function selectTimeSlot(slotText, btnElement) {
+function selectDaySlot(dayText, btnElement) {
     const allSlotBtns = document.querySelectorAll(".time-slot-btn");
     allSlotBtns.forEach(btn => btn.classList.remove("selected"));
 
@@ -1675,20 +1775,21 @@ function selectTimeSlot(slotText, btnElement) {
         btnElement.classList.add("selected");
     }
 
-    const inputHidden = document.getElementById("selectedTimeSlotInput");
+    const inputHidden = document.getElementById("selectedDayInput");
     if (inputHidden) {
-        inputHidden.value = slotText;
+        inputHidden.value = dayText;
     }
 }
 
 function handleClinicAppointmentSubmit(event) {
     event.preventDefault();
 
-    const doctor = document.getElementById("clinicDocSelect").value;
-    const branch = document.getElementById("clinicBranchInput").value;
-    const slot = document.getElementById("selectedTimeSlotInput").value;
+    const doctorId = document.getElementById("clinicDocSelect").value;
+    const branchId = document.getElementById("clinicBranchInput").value;
+    const day = document.getElementById("selectedDayInput").value;
     const patientName = document.getElementById("clinicPatientName").value;
     const patientPhone = document.getElementById("clinicPatientPhone").value;
+    const notes = document.getElementById("clinicNotes").value;
 
     const phoneRegex = /^01[0125][0-9]{8}$/;
     if (!phoneRegex.test(patientPhone)) {
@@ -1696,29 +1797,68 @@ function handleClinicAppointmentSubmit(event) {
         return;
     }
 
-    if (!slot) {
-        showToast("يرجى اختيار الموعد المتاح المناسب لك", "error");
+    if (!day) {
+        showToast("يرجى اختيار اليوم المتاح المناسب لك", "error");
         return;
     }
 
-    const ticketCode = "CLN-EGY-" + Math.floor(1000 + Math.random() * 9000);
+    const docObj = DOCTORS_DATA.find(d => d.id === doctorId);
+    const branchObj = LIVE_CLINIC_BRANCHES.find(b => b.id === branchId);
+    const doctorName = docObj ? docObj.name : "";
+    const branchName = branchObj ? branchObj.name_ar : "";
 
-    // Populate modal ticket
-    document.getElementById("ticketNumber").textContent = ticketCode;
-    document.getElementById("ticketDoctorName").textContent = doctor;
-    document.getElementById("ticketBranch").textContent = branch;
-    document.getElementById("ticketTimeSlot").textContent = slot;
-    document.getElementById("ticketPatientName").textContent = patientName;
-    document.getElementById("ticketPhone").textContent = patientPhone;
-
-    // Show modal
-    const ticketModal = document.getElementById("clinicTicketModal");
-    if (ticketModal) {
-        ticketModal.classList.add("active");
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري إرسال طلب الحجز...';
     }
 
-    event.target.reset();
-    onDoctorSelectChange(doctor);
+    // Send the appointment request straight to Supabase (table:
+    // "clinic_appointments") so it shows up for staff immediately.
+    supabaseClient
+        .from("clinic_appointments")
+        .insert({
+            doctor_id: doctorId || null,
+            doctor_name: doctorName,
+            branch_id: branchId || null,
+            branch_name: branchName,
+            preferred_day: day,
+            patient_name: patientName,
+            patient_phone: patientPhone,
+            notes: notes,
+            status: "new"
+        })
+        .then(({ error }) => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-ticket"></i> تأكيد حجز كشف العيادة واستلام التذكرة';
+            }
+
+            if (error) {
+                console.error("Clinic appointment insert error:", error);
+                showToast("عذراً، حدث خطأ أثناء إرسال طلب الحجز. يرجى المحاولة لاحقاً.", "error");
+                return;
+            }
+
+            const ticketCode = "CLN-EGY-" + Math.floor(1000 + Math.random() * 9000);
+
+            // Populate modal ticket
+            document.getElementById("ticketNumber").textContent = ticketCode;
+            document.getElementById("ticketDoctorName").textContent = doctorName;
+            document.getElementById("ticketBranch").textContent = branchName;
+            document.getElementById("ticketPreferredDay").textContent = day;
+            document.getElementById("ticketPatientName").textContent = patientName;
+            document.getElementById("ticketPhone").textContent = patientPhone;
+
+            // Show modal
+            const ticketModal = document.getElementById("clinicTicketModal");
+            if (ticketModal) {
+                ticketModal.classList.add("active");
+            }
+
+            event.target.reset();
+            onDoctorSelectChange(doctorId);
+        });
 }
 
 function closeClinicTicketModal() {
