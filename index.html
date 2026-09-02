@@ -55,7 +55,7 @@
         </div>
     </div>
 
-    <!-- ==================== 2. MAIN HEADER & NAHDI-STYLE SEARCH ==================== -->
+    <!-- ==================== 2. MAIN HEADER & STYLE SEARCH ==================== -->
     <header class="main-header" id="mainHeader">
         <div class="container header-content">
             <!-- Brand Logo -->
@@ -75,12 +75,7 @@
                     <div class="search-category-dropdown">
                         <select id="searchCategorySelect" onchange="handleCategoryFilter(this.value)">
                             <option value="all">كل الفئات</option>
-                            <option value="medicines">الأدوية والعلاجات</option>
-                            <option value="skincare">العناية بالبشرة</option>
-                            <option value="haircare">العناية بالشعر</option>
-                            <option value="vitamins">الفيتامينات والمكملات</option>
-                            <option value="baby">الأم والطفل</option>
-                            <option value="devices">الأجهزة والمعدات الطبية</option>
+                            <!-- باقي الفئات تُضاف تلقائياً من جدول categories في Supabase عبر renderSearchCategorySelect() -->
                         </select>
                         <i class="fa-solid fa-chevron-down"></i>
                     </div>
@@ -261,12 +256,12 @@
                 <div class="container stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid fa-users"></i></div>
-                        <div class="stat-num">+50,000</div>
+                        <div class="stat-num">+5,000</div>
                         <div class="stat-label">عميل يثق في خدماتنا</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-icon"><i class="fa-solid fa-box-tissue"></i></div>
-                        <div class="stat-num">+15,000</div>
+                        <div class="stat-num">+10,000</div>
                         <div class="stat-label">صنف دوائي وتجميلي متوفر</div>
                     </div>
                     <div class="stat-card">
@@ -301,8 +296,8 @@
                         </div>
                         <div class="contribution-card">
                             <div class="c-icon"><i class="fa-solid fa-truck-medical"></i></div>
-                            <h3>القوافل الطبية والتوعية الصحية</h3>
-                            <p>تنظيم قوافل توعوية دورية في مختلف القرى والمحافظات للتثقيف الدوائي، وتجنب الاستخدام
+                            <h3>التوعية الصحية</h3>
+                            <p>تنظيم توعية بصفة دورية في مختلف مواقع التواصل الإجتماعي للتثقيف الدوائي، وتجنب الاستخدام
                              الخاطئ للأدوية</p>
                         </div>
                         <div class="contribution-card">
@@ -664,7 +659,7 @@
                 <div class="section-heading text-center">
                     <span class="sub-title">رعاية تخصصية وعيادات متكاملة</span>
                     <h2 class="main-title">حجز العيادات والاستشارات الطبية</h2>
-                    <p class="section-lead">نخبة من كبار الأطباء الاستشاريين والصيادلة الإكلينيكيين في خدمتكم. احجز كشفك
+                    <p class="section-lead">نخبة من كبار الأطباء والاستشاريين والصيادلة الإكلينيكيين في خدمتكم. احجز كشفك
                         في العيادة التخصصية أو اطلب استشارة صيدلانية فورية.</p>
                 </div>
 
@@ -689,7 +684,7 @@
                         <div class="dir-title">
                             <i class="fa-solid fa-user-doctor"></i>
                             <div>
-                                <h3>قائمة الأطباء الاستشاريين والمواعيد المتاحة</h3>
+                                <h3>قائمة الأطباء والمواعيد المتاحة</h3>
                                 <p>اختر الطبيب المناسب للاطلاع على مواعيد العيادة والحجز الفوري:</p>
                             </div>
                         </div>
@@ -1056,7 +1051,7 @@
                         الدوائية والتجميلية في مصر.</p>
                 </div>
 
-                <!-- Story & Vision Content (Inspired by El-Ezaby Quality & Leadership) -->
+                <!-- Story & Vision Content (Inspired by Quality & Leadership) -->
                 <div class="about-story-grid">
                     <div class="about-text-card">
                         <div class="about-icon-header"><i class="fa-solid fa-book-medical"></i></div>
@@ -1081,7 +1076,7 @@
                             <li>
                                 <i class="fa-solid fa-temperature-arrow-down"></i>
                                 <div>
-                                    <strong>تبريد الدوائي المعتمدة:</strong>
+                                    <strong>تبريد دوائي معتمد:</strong>
                                     <span>نظام حفظ ومراقبة حرارية إلكتروني للأنسولين والأمصال لضمان الفاعلية
                                         القصوى.</span>
                                 </div>
@@ -1097,7 +1092,7 @@
                             <li>
                                 <i class="fa-solid fa-truck-fast"></i>
                                 <div>
-                                    <strong>أسطول دليفري احترافي:</strong>
+                                    <strong>دليفري احترافي:</strong>
                                     <span>توصيل فوري وآمن في أسرع وقت ممكن.</span>
                                 </div>
                             </li>
@@ -1128,7 +1123,7 @@
                     <div class="value-item">
                         <div class="val-icon"><i class="fa-solid fa-hand-holding-heart"></i></div>
                         <h4>المسؤولية المجتمعية</h4>
-                        <p>دعم غير القادرين، قوافل طبية، ومبادرات فحص السكر والضغط الدورية.</p>
+                        <p>دعم غير القادرين، وتوعية بكل مواقعنا على السوشيال ميديا، ومبادرات فحص السكر والضغط الدورية.</p>
                     </div>
                     <div class="value-item">
                         <div class="val-icon"><i class="fa-solid fa-microchip"></i></div>
@@ -1154,18 +1149,18 @@
                                 <span class="founder-role-tag">المؤسس ورئيس مجلس الإدارة</span>
                                 <h3 class="founder-name">د. إسلام السيد | Dr. Islam Elsayed</h3>
                                 <p class="founder-bio">
-                                    خبير واستشاري في إدارة الرعاية الصحية وتطوير المنظومات الصيدلانية الحديثة بخبرة تزيد
+                                    خبير في إدارة الرعاية الصحية وتطوير المنظومات الصيدلانية الحديثة بخبرة تزيد
                                     عن <strong>10 سنوات</strong> في إدارة المبيعات والعمليات التشغيلية وإدارة الفئات
                                     الدوائية والتجميلية في سلاسل الصيدليات في مصر والمملكة العربية السعودية. يقود
                                     <strong>صيدليات العوضي</strong> برؤية استراتيجية واعدة
                                     تهدف إلى تأسيس نموذج صيدلي رائد يرتكز على أعلى معايير الجودة والمساعدة على امتلاك
                                     قدرة استثنائية على تشخيص احتياجات العملاء وتقديم الحل العلاجي الأنسب لكل حالة،
-                                    ودمج الحلول الرقمية الذكية لتيسير وصول الدواء الآمن ومستحضرات العناية الأصلية
+                                    ودمج الحلول الرقمية الذكية لتيسير وصول الدواء الآمن ومستحضرات العناية 
                                     لكافة فئات المجتمع.
                                 </p>
                                 <p class="founder-bio" style="margin-top: -0.5rem;">
                                     يتبنى فلسفة مستدامة تضع سلامة المريض وصحة الأسرة في صدارة الأولويات، مع التوسع في
-                                    برامج المسؤولية المجتمعية ورعاية الأمراض المزمنة، وتأهيل وتطوير الكوادر الصيدلانية
+                                    برامج رعاية الأمراض المزمنة، وتأهيل وتطوير الكوادر الصيدلانية
                                     الشابة وفق أحدث البروتوكولات العلاجية العالمية.
                                 </p>
                                 <div class="founder-achievements">
@@ -1493,7 +1488,7 @@
                 <button class="btn btn-primary" onclick="closeSuccessModal()">
                     <i class="fa-solid fa-check"></i> حسناً، متابعة الموقع
                 </button>
-                <a href="tel:19850" class="btn btn-outline">
+                <a href="tel:غير متاح حاليا" class="btn btn-outline">
                     <i class="fa-solid fa-phone"></i> الخط الساخن غير متاح حاليا
                 </a>
             </div>
@@ -1544,7 +1539,7 @@
                 <button class="btn btn-primary" onclick="closeClinicTicketModal()">
                     <i class="fa-solid fa-check"></i> تم، حفظ التذكرة
                 </button>
-                <a href="tel:19850" class="btn btn-outline">
+                <a href="tel:غير متاح حاليا" class="btn btn-outline">
                     <i class="fa-solid fa-phone"></i> الخط الساخن غير متاح حاليا
                 </a>
             </div>
@@ -1585,7 +1580,7 @@
             <i class="fa-brands fa-whatsapp"></i>
             <span class="float-tooltip">تواصل عبر واتساب</span>
         </a>
-        <a href="tel:19850" class="float-btn float-call" title="اتصل بالخط الساخن" aria-label="اتصل بنا">
+        <a href="tel:غير متاح حاليا" class="float-btn float-call" title="اتصل بالخط الساخن" aria-label="اتصل بنا">
             <i class="fa-solid fa-phone"></i>
             <span class="float-tooltip">الخط الساخن </span>
         </a>

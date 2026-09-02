@@ -135,6 +135,31 @@ function renderCategoryNav() {
     nav.insertAdjacentHTML("beforeend", generatedHtml);
 }
 
+/**
+ * Populates the "كل الفئات" dropdown inside the top search bar with the
+ * live active categories from Supabase (CATEGORIES_DATA), so any category
+ * added/renamed/deactivated in the categories table is reflected on the
+ * site automatically without touching the code. Keeps the existing "all"
+ * option and preserves whatever value was previously selected, if it
+ * still exists among the fresh categories.
+ */
+function renderSearchCategorySelect() {
+    const select = document.getElementById("searchCategorySelect");
+    if (!select) return;
+
+    const previousValue = select.value || "all";
+
+    const optionsHtml = CATEGORIES_DATA.map(cat =>
+        `<option value="${cat.slug}">${cat.name_ar}</option>`
+    ).join("");
+
+    select.innerHTML = `<option value="all">كل الفئات</option>${optionsHtml}`;
+
+    // Restore previous selection if that category still exists
+    const stillExists = Array.from(select.options).some(opt => opt.value === previousValue);
+    select.value = stillExists ? previousValue : "all";
+}
+
 async function loadProductsCatalog() {
     try {
         const { data: categories, error: catError } = await supabaseClient
@@ -162,6 +187,7 @@ async function loadProductsCatalog() {
 
         SUBCATEGORIES_DATA = subcats || [];
         renderCategoryNav();
+        renderSearchCategorySelect();
 
         const { data: products, error: prodError } = await supabaseClient
             .from("products")
@@ -564,11 +590,8 @@ function filterBySpecificCategory(category) {
 }
 
 function handleCategoryFilter(category) {
-    state.currentCategory = category;
-    if (category !== "all") {
-        switchSection("products");
-        filterProductsByCategory(category);
-    }
+    switchSection("products");
+    filterProductsByCategory(category);
 }
 
 function handleInlineSearch(val) {
@@ -597,15 +620,23 @@ function setupGlobalSearchListeners() {
         const query = e.target.value.trim().toLowerCase();
         state.searchQuery = query;
 
+        // Respect the category picked in the "كل الفئات" dropdown (Supabase-driven),
+        // so choosing a category narrows the live search results to it.
+        const categorySelect = document.getElementById("searchCategorySelect");
+        const selectedCategory = categorySelect ? categorySelect.value : "all";
+
         if (query.length > 0) {
             btnClear.style.display = "block";
             
             // Search in data
-            const matches = PRODUCTS_DATA.filter(p => 
-                p.nameAr.toLowerCase().includes(query) || 
-                p.nameEn.toLowerCase().includes(query) || 
-                p.categoryName.toLowerCase().includes(query)
-            );
+            const matches = PRODUCTS_DATA.filter(p => {
+                const matchesCategory = selectedCategory === "all" || p.category === selectedCategory;
+                const matchesQuery =
+                    p.nameAr.toLowerCase().includes(query) ||
+                    p.nameEn.toLowerCase().includes(query) ||
+                    p.categoryName.toLowerCase().includes(query);
+                return matchesCategory && matchesQuery;
+            });
 
             dropdownCount.textContent = `${matches.length} منتجات`;
 
