@@ -1716,6 +1716,8 @@ function handleConsultationSubmit(event) {
     const phone = document.getElementById("consPhone").value;
     const type = document.getElementById("consType").value;
     const time = document.getElementById("consTime").value;
+    const details = document.getElementById("consDetails").value;
+    const contactMethod = (document.querySelector('input[name="commChannel"]:checked') || {}).value || "phone";
 
     const phoneRegex = /^01[0125][0-9]{8}$/;
     if (!phoneRegex.test(phone)) {
@@ -1723,8 +1725,38 @@ function handleConsultationSubmit(event) {
         return;
     }
 
-    showToast(`تم حجز استشارتك الطبية بنجاح يا ${name}! سيتواصل معك الصيدلي الاستشاري في ${time}.`, "success");
-    event.target.reset();
+    const submitBtn = event.target.querySelector('button[type="submit"]');
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> جاري إرسال طلب الاستشارة...';
+    }
+
+    supabaseClient
+        .from("consultations")
+        .insert({
+            patient_name: name,
+            phone: phone,
+            consultation_type: type,
+            preferred_time: time,
+            contact_method: contactMethod,
+            details: details,
+            status: "new"
+        })
+        .then(({ error }) => {
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-calendar-check"></i> تأكيد حجز الاستشارة الطبية المجانية';
+            }
+
+            if (error) {
+                console.error("Consultation insert error:", error);
+                showToast("عذراً، حدث خطأ أثناء إرسال طلب الاستشارة. يرجى المحاولة لاحقاً.", "error");
+                return;
+            }
+
+            showToast(`تم حجز استشارتك الطبية بنجاح يا ${name}! سيتواصل معك الصيدلي الاستشاري في ${time}.`, "success");
+            event.target.reset();
+        });
 }
 
 // --------------------------------------------------------------------------
