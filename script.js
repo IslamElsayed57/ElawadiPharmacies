@@ -2101,3 +2101,51 @@ function showToast(message, type = "success") {
         setTimeout(() => toast.remove(), 300);
     }, 4500);
 }
+
+// --------------------------------------------------------------------------
+// 13. Hero Video Force-Play Fallback
+// --------------------------------------------------------------------------
+(function () {
+    function ensureHeroVideoPlays() {
+        const heroVideo = document.getElementById("heroVideo");
+        if (!heroVideo) return;
+
+        heroVideo.muted = true;
+        heroVideo.setAttribute("muted", "");
+
+        const tryPlay = () => {
+            const playPromise = heroVideo.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    // Autoplay blocked: retry on first user interaction anywhere on the page
+                    const resume = () => {
+                        heroVideo.play().catch(() => {});
+                        document.removeEventListener("click", resume);
+                        document.removeEventListener("touchstart", resume);
+                    };
+                    document.addEventListener("click", resume, { once: true });
+                    document.addEventListener("touchstart", resume, { once: true });
+                });
+            }
+        };
+
+        if (heroVideo.readyState >= 2) {
+            tryPlay();
+        } else {
+            heroVideo.addEventListener("loadeddata", tryPlay, { once: true });
+        }
+
+        // If the browser tab was backgrounded and paused it, resume on return
+        document.addEventListener("visibilitychange", () => {
+            if (!document.hidden && heroVideo.paused) {
+                heroVideo.play().catch(() => {});
+            }
+        });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", ensureHeroVideoPlays);
+    } else {
+        ensureHeroVideoPlays();
+    }
+})();
