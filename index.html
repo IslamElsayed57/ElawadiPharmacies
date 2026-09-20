@@ -28,9 +28,9 @@
     <div class="top-bar">
         <div class="container top-bar-content">
             <div class="top-bar-left">
-                <span class="hotline-badge">
+                <span class="hotline-badge" id="topbarHotlineBadge">
                     <i class="fa-solid fa-phone-volume"></i>
-                    الخط الساخن: <strong>غير متاح بعد</strong>
+                    الخط الساخن: <strong id="topbarHotline">19850</strong>
                 </span>
                 <span class="divider">|</span>
                 <span class="delivery-badge">
@@ -44,11 +44,11 @@
                     أدوية معتمدة من هيئة الدواء المصرية
                 </span>
                 <div class="social-links-top">
-                    <a href="https://wa.me/201000000000" target="_blank" title="واتساب" aria-label="واتساب"><i
+                    <a href="https://wa.me/201000000000" target="_blank" id="topbarWhatsappBtn" title="واتساب" aria-label="واتساب"><i
                             class="fa-brands fa-whatsapp"></i></a>
-                    <a href="https://facebook.com" target="_blank" title="فيسبوك" aria-label="فيسبوك"><i
+                    <a href="#" target="_blank" id="topbarFacebookBtn" title="فيسبوك" aria-label="فيسبوك"><i
                             class="fa-brands fa-facebook-f"></i></a>
-                    <a href="https://instagram.com" target="_blank" title="انستجرام" aria-label="انستجرام"><i
+                    <a href="#" target="_blank" id="topbarInstagramBtn" title="انستجرام" aria-label="انستجرام"><i
                             class="fa-brands fa-instagram"></i></a>
                 </div>
             </div>
@@ -1036,24 +1036,20 @@
                         <div class="c-icon"><i class="fa-solid fa-share-nodes"></i></div>
                         <h3>تابعنا على السوشيال ميديا</h3>
                         <p>كل أخبار العروض والمنتجات الجديدة أول بأول على صفحاتنا الرسمية.</p>
-                        <div class="social-links-row">
-                            <!-- TODO: استبدل href="#" برابط صفحة الفيسبوك بتاعتك -->
-                            <a href="#" target="_blank" class="social-icon-btn" title="فيسبوك"
+                        <div class="social-links-row" id="contactSocialLinks">
+                            <a href="#" target="_blank" class="social-icon-btn" id="socialLinkFacebook" title="فيسبوك"
                                 aria-label="صفحتنا على فيسبوك">
                                 <i class="fa-brands fa-facebook-f"></i>
                             </a>
-                            <!-- TODO: استبدل href="#" برابط صفحة الانستجرام بتاعتك -->
-                            <a href="#" target="_blank" class="social-icon-btn" title="انستجرام"
+                            <a href="#" target="_blank" class="social-icon-btn" id="socialLinkInstagram" title="انستجرام"
                                 aria-label="صفحتنا على انستجرام">
                                 <i class="fa-brands fa-instagram"></i>
                             </a>
-                            <!-- TODO: استبدل href="#" برابط صفحة تيك توك بتاعتك -->
-                            <a href="#" target="_blank" class="social-icon-btn" title="تيك توك"
+                            <a href="#" target="_blank" class="social-icon-btn" id="socialLinkTiktok" title="تيك توك"
                                 aria-label="صفحتنا على تيك توك">
                                 <i class="fa-brands fa-tiktok"></i>
                             </a>
-                            <!-- TODO: استبدل href="#" برابط صفحة X (تويتر) بتاعتك -->
-                            <a href="#" target="_blank" class="social-icon-btn" title="X"
+                            <a href="#" target="_blank" class="social-icon-btn" id="socialLinkTwitter" title="X"
                                 aria-label="صفحتنا على إكس">
                                 <i class="fa-brands fa-x-twitter"></i>
                             </a>
@@ -1062,17 +1058,16 @@
                     <div class="contact-card whatsapp-card">
                         <div class="c-icon"><i class="fa-brands fa-whatsapp"></i></div>
                         <h3>خدمة الواتساب للروشتات</h3>
-                        <div class="phone-display">010</div>
+                        <div class="phone-display" id="contactWhatsappDisplay">010</div>
                         <p>أرسل صورة الروشتة أو استفسارك وسيتم الرد عليك في أقل من 5 دقائق لتأكيد الطلب.</p>
-                        <a href="https://wa.me/201000000000" target="_blank" class="btn btn-whatsapp">محادثة واتساب
-                            فورية</a>
+                        <a href="https://wa.me/201000000000" target="_blank" class="btn btn-whatsapp" id="contactWhatsappBtn">محادثة واتساب فورية</a>
                     </div>
                     <div class="contact-card email-card">
                         <div class="c-icon"><i class="fa-solid fa-envelope-open-text"></i></div>
                         <h3>البريد الإلكتروني</h3>
-                        <div class="phone-display text-sm">care@elawadipharmacies.eg</div>
+                        <div class="phone-display text-sm" id="contactEmailDisplay">care@elawadipharmacies.eg</div>
                         <p>للاستفسارات العامة، الشراكات المؤسسية، وخدمات التأمين الطبي للشركات والمصانع.</p>
-                        <a href="mailto:care@elawadipharmacies.eg" class="btn btn-outline">إرسال بريد</a>
+                        <a href="mailto:care@elawadipharmacies.eg" class="btn btn-outline" id="contactEmailBtn">إرسال بريد</a>
                     </div>
                 </div>
 
@@ -1126,7 +1121,7 @@
                     <i class="fa-solid fa-phone-volume"></i>
                     <div>
                         <span>الخط الساخن المباشر</span>
-                        <strong>غير متاح بعد</strong>
+                        <strong id="footerHotlineDisplay">19850</strong>
                     </div>
                 </div>
             </div>
@@ -1311,6 +1306,14 @@
                     <span>طريقة الاستلام:</span>
                     <span id="successDeliveryType">-</span>
                 </div>
+                <div class="summary-row" id="successSubtotalRow" style="display: none;">
+                    <span>قيمة المنتجات:</span>
+                    <span id="successSubtotal">-</span>
+                </div>
+                <div class="summary-row" id="successDeliveryFeeRow" style="display: none;">
+                    <span>رسوم التوصيل:</span>
+                    <span id="successDeliveryFee">-</span>
+                </div>
                 <div class="summary-row" id="successTotalRow" style="display: none;">
                     <span>الإجمالي:</span>
                     <span id="successOrderTotal">-</span>
@@ -1326,8 +1329,8 @@
                 <button class="btn btn-primary" onclick="closeSuccessModal()">
                     <i class="fa-solid fa-check"></i> حسناً، متابعة الموقع
                 </button>
-                <a href="tel:غير متاح حاليا" class="btn btn-outline">
-                    <i class="fa-solid fa-phone"></i> الخط الساخن غير متاح حاليا
+                <a href="tel:غير متاح حاليا" class="btn btn-outline" id="successHotlineBtn">
+                    <i class="fa-solid fa-phone"></i> <span id="successHotlineText">الخط الساخن غير متاح حاليا</span>
                 </a>
             </div>
         </div>
@@ -1377,8 +1380,8 @@
                 <button class="btn btn-primary" onclick="closeClinicTicketModal()">
                     <i class="fa-solid fa-check"></i> تم، حفظ التذكرة
                 </button>
-                <a href="tel:غير متاح حاليا" class="btn btn-outline">
-                    <i class="fa-solid fa-phone"></i> الخط الساخن غير متاح حاليا
+                <a href="tel:غير متاح حاليا" class="btn btn-outline" id="clinicSuccessHotlineBtn">
+                    <i class="fa-solid fa-phone"></i> <span id="clinicSuccessHotlineText">الخط الساخن غير متاح حاليا</span>
                 </a>
             </div>
         </div>
@@ -1400,6 +1403,16 @@
                 <!-- Populated dynamically via JS -->
             </div>
             <div class="cart-drawer-footer" id="cartDrawerFooter">
+                <div class="cart-delivery-info" id="cartDeliveryInfo">
+                    <div class="cart-delivery-row" id="cartDeliveryFeeRow">
+                        <span>رسوم التوصيل:</span>
+                        <span id="cartDeliveryFeeValue">-</span>
+                    </div>
+                    <div class="cart-delivery-row cart-free-delivery" id="cartFreeDeliveryRow" style="display: none;">
+                        <span><i class="fa-solid fa-truck-fast"></i> توصيل مجاني للطلبات فوق</span>
+                        <span id="cartFreeDeliveryThreshold">-</span>
+                    </div>
+                </div>
                 <div class="cart-total-row">
                     <span>الإجمالي التقديري:</span>
                     <strong id="cartTotalPrice">0.00 ج.م</strong>
@@ -1413,12 +1426,12 @@
 
     <!-- Floating Action Buttons (WhatsApp & Quick Call) -->
     <div class="floating-quick-actions">
-        <a href="https://wa.me/201000000000" target="_blank" class="float-btn float-whatsapp" title="تواصل واتساب"
+        <a href="https://wa.me/201000000000" target="_blank" class="float-btn float-whatsapp" id="floatingWhatsappBtn" title="تواصل واتساب"
             aria-label="واتساب">
             <i class="fa-brands fa-whatsapp"></i>
             <span class="float-tooltip">تواصل عبر واتساب</span>
         </a>
-        <a href="tel:غير متاح حاليا" class="float-btn float-call" title="اتصل بالخط الساخن" aria-label="اتصل بنا">
+        <a href="tel:19850" class="float-btn float-call" id="floatingCallBtn" title="اتصل بالخط الساخن" aria-label="اتصل بنا">
             <i class="fa-solid fa-phone"></i>
             <span class="float-tooltip">الخط الساخن </span>
         </a>

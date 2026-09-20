@@ -251,32 +251,201 @@ let state = {
     cart: []
 };
 
-// Live delivery rules (from Supabase settings.delivery_rules). Any edit
-// to these values in Supabase is picked up automatically on the next
-// page load — no code changes needed.
-let DELIVERY_FEE = 0;
-let FREE_DELIVERY_THRESHOLD = 0;
-let DELIVERY_ESTIMATED_TIME = "";
+// Live settings store (from Supabase settings table).
+// Any update in the Admin Pharmacy Dashboard is reflected automatically.
+let LIVE_SETTINGS = {
+    delivery_rules: {
+        default_fee: 25,
+        free_delivery_threshold: 500,
+        estimated_time: "30-45 دقيقة"
+    },
+    pharmacy_info: {
+        name_ar: "صيدليات العوضي",
+        name_en: "Elawadi Pharmacies",
+        hotline: "19850",
+        whatsapp: "01000000000",
+        email: "care@elawadipharmacies.eg"
+    },
+    social_links: {
+        facebook: "",
+        instagram: "",
+        tiktok: "",
+        twitter: ""
+    }
+};
 
-async function loadDeliveryFee() {
+let DELIVERY_FEE = 25;
+let FREE_DELIVERY_THRESHOLD = 500;
+let DELIVERY_ESTIMATED_TIME = "30-45 دقيقة";
+
+async function loadLivePharmacySettings() {
     try {
         const { data, error } = await supabaseClient
             .from("settings")
-            .select("value")
-            .eq("key", "delivery_rules")
-            .single();
+            .select("*");
 
         if (error) throw error;
 
-        const fee = Number(data?.value?.default_fee);
-        DELIVERY_FEE = Number.isFinite(fee) ? fee : 0;
+        const map = {};
+        (data || []).forEach(row => {
+            map[row.key] = row.value;
+        });
 
-        const threshold = Number(data?.value?.free_delivery_threshold);
-        FREE_DELIVERY_THRESHOLD = Number.isFinite(threshold) ? threshold : 0;
+        if (map.delivery_rules) {
+            LIVE_SETTINGS.delivery_rules = Object.assign(LIVE_SETTINGS.delivery_rules, map.delivery_rules);
+            const fee = Number(map.delivery_rules.default_fee);
+            DELIVERY_FEE = Number.isFinite(fee) ? fee : 25;
+            const threshold = Number(map.delivery_rules.free_delivery_threshold);
+            FREE_DELIVERY_THRESHOLD = Number.isFinite(threshold) ? threshold : 500;
+            DELIVERY_ESTIMATED_TIME = map.delivery_rules.estimated_time || "30-45 دقيقة";
+        }
 
-        DELIVERY_ESTIMATED_TIME = data?.value?.estimated_time || "";
+        if (map.pharmacy_info) {
+            LIVE_SETTINGS.pharmacy_info = Object.assign(LIVE_SETTINGS.pharmacy_info, map.pharmacy_info);
+        }
+
+        if (map.social_links) {
+            LIVE_SETTINGS.social_links = Object.assign(LIVE_SETTINGS.social_links, map.social_links);
+        }
+
+        applySettingsToDOM();
     } catch (err) {
-        console.error("Failed to load delivery fee from settings:", err);
+        console.error("Failed to load settings from Supabase:", err);
+    }
+}
+
+async function loadDeliveryFee() {
+    return await loadLivePharmacySettings();
+}
+
+function applySettingsToDOM() {
+    const { pharmacy_info, social_links } = LIVE_SETTINGS;
+
+    // 1. Hotline
+    const hotline = pharmacy_info.hotline || "";
+    const topbarHotline = document.getElementById("topbarHotline");
+    if (topbarHotline) topbarHotline.textContent = hotline || "غير متاح حالياً";
+
+    const footerHotline = document.getElementById("footerHotlineDisplay");
+    if (footerHotline) footerHotline.textContent = hotline || "غير متاح حالياً";
+
+    const floatCall = document.getElementById("floatingCallBtn");
+    if (floatCall) {
+        if (hotline && hotline !== "غير متوفر حاليا" && hotline !== "غير متاح بعد") {
+            const cleanPhone = hotline.replace(/[^\d+]/g, '');
+            floatCall.href = `tel:${cleanPhone || hotline}`;
+            floatCall.style.display = "flex";
+            const tooltip = floatCall.querySelector(".float-tooltip");
+            if (tooltip) tooltip.textContent = `الخط الساخن ${hotline}`;
+        } else {
+            floatCall.href = "javascript:void(0)";
+        }
+    }
+
+    // 2. WhatsApp
+    const wa = pharmacy_info.whatsapp || "";
+    const waClean = wa.replace(/\D/g, "");
+    const waIntl = waClean.startsWith("0") ? `2${waClean}` : waClean;
+    const waUrl = waClean ? `https://wa.me/${waIntl}` : "#";
+
+    const waDisplay = document.getElementById("contactWhatsappDisplay");
+    if (waDisplay) waDisplay.textContent = wa || "010";
+
+    const waBtn = document.getElementById("contactWhatsappBtn");
+    if (waBtn) waBtn.href = waUrl;
+
+    const floatWa = document.getElementById("floatingWhatsappBtn");
+    if (floatWa) {
+        floatWa.href = waUrl;
+        floatWa.style.display = waClean ? "flex" : "none";
+    }
+
+    const topbarWa = document.getElementById("topbarWhatsappBtn");
+    if (topbarWa) topbarWa.href = waUrl;
+
+    // 3b. Hotline in order-success modal
+    const successHotlineBtn = document.getElementById("successHotlineBtn");
+    const successHotlineText = document.getElementById("successHotlineText");
+    if (successHotlineBtn && hotline) {
+        const cleanHotline = hotline.replace(/[^\d+]/g, '');
+        successHotlineBtn.href = `tel:${cleanHotline || hotline}`;
+        if (successHotlineText) successHotlineText.textContent = `الخط الساخن ${hotline}`;
+    }
+
+    // 3c. Hotline in clinic-ticket modal
+    const clinicSuccessHotlineBtn = document.getElementById("clinicSuccessHotlineBtn");
+    const clinicSuccessHotlineText = document.getElementById("clinicSuccessHotlineText");
+    if (clinicSuccessHotlineBtn && hotline) {
+        const cleanHotline = hotline.replace(/[^\d+]/g, '');
+        clinicSuccessHotlineBtn.href = `tel:${cleanHotline || hotline}`;
+        if (clinicSuccessHotlineText) clinicSuccessHotlineText.textContent = `الخط الساخن ${hotline}`;
+    }
+
+    // 3. Email
+    const email = pharmacy_info.email || "care@elawadipharmacies.eg";
+    const emailDisplay = document.getElementById("contactEmailDisplay");
+    if (emailDisplay) emailDisplay.textContent = email;
+
+    const emailBtn = document.getElementById("contactEmailBtn");
+    if (emailBtn) emailBtn.href = `mailto:${email}`;
+
+    // 4. Social Media Links
+    const fbLink = document.getElementById("socialLinkFacebook");
+    if (fbLink) {
+        if (social_links.facebook) {
+            fbLink.href = social_links.facebook;
+            fbLink.style.display = "inline-flex";
+        } else {
+            fbLink.href = "#";
+        }
+    }
+    const topbarFb = document.getElementById("topbarFacebookBtn");
+    if (topbarFb && social_links.facebook) topbarFb.href = social_links.facebook;
+
+    const igLink = document.getElementById("socialLinkInstagram");
+    if (igLink) {
+        if (social_links.instagram) {
+            igLink.href = social_links.instagram;
+            igLink.style.display = "inline-flex";
+        } else {
+            igLink.href = "#";
+        }
+    }
+    const topbarIg = document.getElementById("topbarInstagramBtn");
+    if (topbarIg && social_links.instagram) topbarIg.href = social_links.instagram;
+
+    const ttLink = document.getElementById("socialLinkTiktok");
+    if (ttLink) {
+        if (social_links.tiktok) {
+            ttLink.href = social_links.tiktok;
+            ttLink.style.display = "inline-flex";
+        } else {
+            ttLink.href = "#";
+        }
+    }
+
+    const twLink = document.getElementById("socialLinkTwitter");
+    if (twLink) {
+        if (social_links.twitter) {
+            twLink.href = social_links.twitter;
+            twLink.style.display = "inline-flex";
+        } else {
+            twLink.href = "#";
+        }
+    }
+}
+
+function setupRealtimeSettings() {
+    try {
+        supabaseClient
+            .channel("realtime-settings-sync")
+            .on("postgres_changes", { event: "*", schema: "public", table: "settings" }, () => {
+                console.log("Realtime settings change detected, syncing live...");
+                loadLivePharmacySettings();
+            })
+            .subscribe();
+    } catch (e) {
+        console.warn("Could not subscribe to settings realtime changes:", e);
     }
 }
 
@@ -304,8 +473,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // radio that's checked by default (pickup)
     toggleDeliveryFields(false);
 
-    // Load live delivery fee from Supabase settings table
-    loadDeliveryFee();
+    // Load live delivery fee, pharmacy info & social media from Supabase settings table
+    await loadLivePharmacySettings();
+    setupRealtimeSettings();
 
     // Load pharmacy branches (used by delivery/pickup selects, the branch
     // locator section, and the map — NOT the clinic booking widget).
@@ -317,6 +487,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     await loadClinicBranches();
     populateClinicBranchOptions();
     await loadDoctorsDirectory();
+    setupRealtimeDoctors();
 
     // Check URL hash for routing
     handleInitialRouting();
@@ -735,6 +906,38 @@ function updateCartUI() {
     if (badge) badge.textContent = totalCount;
     if (cartTotalPrice) cartTotalPrice.textContent = `${totalPrice.toFixed(2)} ج.م`;
 
+    // Update delivery fee info
+    const deliveryFeeRow = document.getElementById("cartDeliveryFeeRow");
+    const deliveryFeeValue = document.getElementById("cartDeliveryFeeValue");
+    const freeDeliveryRow = document.getElementById("cartFreeDeliveryRow");
+    const freeDeliveryThreshold = document.getElementById("cartFreeDeliveryThreshold");
+
+    if (deliveryFeeRow && deliveryFeeValue) {
+        if (totalPrice > 0) {
+            const isFreeDelivery = FREE_DELIVERY_THRESHOLD > 0 && totalPrice >= FREE_DELIVERY_THRESHOLD;
+            deliveryFeeValue.textContent = isFreeDelivery ? "مجاني" : `${DELIVERY_FEE.toFixed(2)} ج.م`;
+            deliveryFeeValue.style.color = isFreeDelivery ? "var(--success, #16a34a)" : "";
+            deliveryFeeRow.style.display = "flex";
+        } else {
+            deliveryFeeRow.style.display = "none";
+        }
+    }
+
+    if (freeDeliveryRow && freeDeliveryThreshold) {
+        if (FREE_DELIVERY_THRESHOLD > 0 && totalPrice > 0 && totalPrice < FREE_DELIVERY_THRESHOLD) {
+            const remaining = (FREE_DELIVERY_THRESHOLD - totalPrice).toFixed(2);
+            freeDeliveryThreshold.textContent = `${FREE_DELIVERY_THRESHOLD.toFixed(2)} ج.م`;
+            freeDeliveryRow.querySelector("span:first-child").innerHTML = `<i class="fa-solid fa-truck-fast"></i> أضف ${remaining} ج.م للتوصيل المجاني`;
+            freeDeliveryRow.style.display = "flex";
+        } else if (totalPrice > 0 && FREE_DELIVERY_THRESHOLD > 0 && totalPrice >= FREE_DELIVERY_THRESHOLD) {
+            freeDeliveryRow.querySelector("span:first-child").innerHTML = `<i class="fa-solid fa-truck-fast"></i> مبروك! طلبك مؤهل للتوصيل المجاني`;
+            freeDeliveryThreshold.textContent = "";
+            freeDeliveryRow.style.display = "flex";
+        } else {
+            freeDeliveryRow.style.display = "none";
+        }
+    }
+
     if (!cartList) return;
 
     if (state.cart.length === 0) {
@@ -819,13 +1022,14 @@ async function loadDeliveryBranchOptions() {
     try {
         const { data: branches, error } = await supabaseClient
             .from("branches")
-            .select("id, name_ar")
+            .select("id, name_ar, city")
+            .eq("is_active", true)
             .order("name_ar");
 
         if (error) throw error;
 
         const optionsHtml = (branches || [])
-            .map(b => `<option value="${b.id}">${b.name_ar}</option>`)
+            .map(b => `<option value="${b.id}">${b.name_ar}${b.city ? ` (${formatCityName(b.city)})` : ''}</option>`)
             .join("");
 
         selects.forEach(select => {
@@ -1051,16 +1255,33 @@ async function handleMedicineOrderSubmit(event) {
         document.getElementById("successDeliveryType").textContent =
             deliveryText;
 
+        const subtotalRow = document.getElementById("successSubtotalRow");
+        const subtotalEl = document.getElementById("successSubtotal");
+        const deliveryFeeRowEl = document.getElementById("successDeliveryFeeRow");
+        const deliveryFeeEl = document.getElementById("successDeliveryFee");
         const totalRow = document.getElementById("successTotalRow");
         const totalEl = document.getElementById("successOrderTotal");
-        if (totalRow && totalEl && subtotal > 0) {
-            let totalText = `${total.toFixed(2)} ج.م`;
+
+        if (subtotalRow && subtotalEl) {
+            subtotalEl.textContent = `${subtotal.toFixed(2)} ج.م`;
+            subtotalRow.style.display = subtotal > 0 ? "flex" : "none";
+        }
+
+        if (deliveryFeeRowEl && deliveryFeeEl) {
             if (deliveryMethod === "delivery") {
-                totalText += deliveryFeeValue === 0
-                    ? " (توصيل مجاني)"
-                    : ` (شامل ${deliveryFeeValue.toFixed(2)} ج.م رسوم توصيل)`;
+                deliveryFeeEl.textContent = deliveryFeeValue === 0
+                    ? "0.00 ج.م (توصيل مجاني)"
+                    : `${deliveryFeeValue.toFixed(2)} ج.م`;
+                deliveryFeeEl.style.color = deliveryFeeValue === 0 ? "#16a34a" : "";
+                deliveryFeeRowEl.style.display = "flex";
+            } else {
+                deliveryFeeRowEl.style.display = "none";
             }
-            totalEl.textContent = totalText;
+        }
+
+        if (totalRow && totalEl && (subtotal > 0 || deliveryMethod === "delivery")) {
+            const finalTotal = subtotal + deliveryFeeValue;
+            totalEl.textContent = `${finalTotal.toFixed(2)} ج.م`;
             totalRow.style.display = "flex";
         } else if (totalRow) {
             totalRow.style.display = "none";
@@ -1422,6 +1643,42 @@ async function handleQuickRxModalSubmit(event) {
             "successDeliveryType"
         ).textContent = deliveryDescription;
 
+        // Set estimated delivery time
+        const estimatedTimeEl = document.getElementById("successEstimatedTime");
+        if (estimatedTimeEl && DELIVERY_ESTIMATED_TIME) {
+            estimatedTimeEl.textContent = `خلال ${DELIVERY_ESTIMATED_TIME}`;
+        }
+
+        // Set subtotal, delivery fee & total breakdown in success modal
+        const subtotalRow = document.getElementById("successSubtotalRow");
+        const subtotalEl = document.getElementById("successSubtotal");
+        const deliveryFeeRowEl = document.getElementById("successDeliveryFeeRow");
+        const deliveryFeeEl = document.getElementById("successDeliveryFee");
+        const totalRow = document.getElementById("successTotalRow");
+        const totalEl = document.getElementById("successOrderTotal");
+
+        if (subtotalRow && subtotalEl) {
+            subtotalEl.textContent = "0.00 ج.م";
+            subtotalRow.style.display = "none";
+        }
+
+        if (deliveryFeeRowEl && deliveryFeeEl) {
+            if (method === "delivery") {
+                deliveryFeeEl.textContent = modalDeliveryFee === 0
+                    ? "0.00 ج.م (توصيل مجاني)"
+                    : `${modalDeliveryFee.toFixed(2)} ج.م`;
+                deliveryFeeEl.style.color = modalDeliveryFee === 0 ? "#16a34a" : "";
+                deliveryFeeRowEl.style.display = "flex";
+            } else {
+                deliveryFeeRowEl.style.display = "none";
+            }
+        }
+
+        if (totalRow && totalEl) {
+            totalEl.textContent = `${modalDeliveryFee.toFixed(2)} ج.م`;
+            totalRow.style.display = "flex";
+        }
+
         // Show success modal
         const successModal =
             document.getElementById("orderSuccessModal");
@@ -1514,7 +1771,7 @@ let LIVE_CLINIC_BRANCHES = [];
  * site (delivery, pickup, branch locator, map) keeps using the pharmacy
  * "branches" table via loadLiveBranches(), untouched.
  */
-async function loadClinicBranches() {
+async function loadClinicBranches(keepOnError = false) {
     try {
         const { data, error } = await supabaseClient
             .from("clinic_branches")
@@ -1525,9 +1782,12 @@ async function loadClinicBranches() {
         if (error) throw error;
 
         LIVE_CLINIC_BRANCHES = data || [];
+        return true;
     } catch (err) {
         console.error("Failed to load clinic branches:", err);
-        LIVE_CLINIC_BRANCHES = [];
+        // On a background refresh keep what is already on screen.
+        if (!keepOnError) LIVE_CLINIC_BRANCHES = [];
+        return false;
     }
 }
 
@@ -1538,7 +1798,14 @@ async function loadClinicBranches() {
  * the doctors grid and pre-fills the booking form with the first branch
  * that actually has doctors.
  */
-async function loadDoctorsDirectory() {
+async function loadDoctorsDirectory(preserveSelection = false) {
+    // On a live refresh remember what the visitor already picked in the booking
+    // form (branch / doctor / day) so it isn't reset under their hands.
+    const prev = preserveSelection ? {
+        doctorId: document.getElementById("clinicDocSelect")?.value || "",
+        day: document.getElementById("selectedDayInput")?.value || ""
+    } : null;
+
     try {
         const { data, error } = await supabaseClient
             .from("doctors")
@@ -1548,33 +1815,57 @@ async function loadDoctorsDirectory() {
 
         if (error) throw error;
 
-        DOCTORS_DATA = (data || []).map(d => ({
+        // Everything below is edited from the Elawadi Clinics dashboard
+        // (Doctors page) and read here from the same "doctors" row.
+        const mapped = (data || []).map(d => ({
             id: d.id,
             name: d.name_ar,
             specialty: d.specialty || "",
-            title: d.title || "",
+            // Short bio written in the dashboard; "title" is the older field.
+            title: d.bio || d.title || "",
             branchId: d.branch_id,
             branchName: d.clinic_branches ? d.clinic_branches.name_ar : "",
-            fee: Number(d.fee) || 0,
+            // New-visit fee (falls back to the legacy "fee" column) + follow-up fee.
+            fee: Number(d.new_visit_fee) > 0 ? Number(d.new_visit_fee) : (Number(d.fee) || 0),
+            followupFee: Number(d.followup_fee) || 0,
+            avatarUrl: d.avatar_url || "",
             avatarIcon: d.avatar_icon || "fa-user-doctor",
             // Just the day names (e.g. "السبت"), no times, per the site's
             // customer-facing booking flow.
             availableDays: Array.isArray(d.available_days) ? d.available_days : []
         }));
 
+        // Live refresh with nothing new: don't touch the page at all.
+        if (preserveSelection && JSON.stringify(mapped) === JSON.stringify(DOCTORS_DATA)) return;
+        DOCTORS_DATA = mapped;
+
         renderDoctorsGrid();
 
-        // Pre-fill the booking form with the first branch that has doctors
         if (DOCTORS_DATA.length > 0) {
             const branchSelect = document.getElementById("clinicBranchInput");
-            const defaultBranchId = DOCTORS_DATA[0].branchId;
-            if (branchSelect) branchSelect.value = defaultBranchId;
-            populateDoctorOptionsForBranch(defaultBranchId, DOCTORS_DATA[0].id);
+            const keep = prev && prev.doctorId ? DOCTORS_DATA.find(d => d.id === prev.doctorId) : null;
+
+            if (keep) {
+                // Keep the visitor's doctor (and chosen day if it still exists)
+                if (branchSelect) branchSelect.value = keep.branchId;
+                populateDoctorOptionsForBranch(keep.branchId, keep.id);
+                if (prev.day) {
+                    const dayBtn = Array.from(document.querySelectorAll("#interactiveDaySlotsContainer .time-slot-btn"))
+                        .find(b => b.textContent.trim() === prev.day);
+                    if (dayBtn) selectDaySlot(prev.day, dayBtn);
+                }
+            } else {
+                // Pre-fill the booking form with the first branch that has doctors
+                const defaultBranchId = DOCTORS_DATA[0].branchId;
+                if (branchSelect) branchSelect.value = defaultBranchId;
+                populateDoctorOptionsForBranch(defaultBranchId, DOCTORS_DATA[0].id);
+            }
         } else {
             renderInteractiveDaySlots([]);
         }
     } catch (err) {
         console.error("Load doctors directory error:", err);
+        if (preserveSelection) return; // background refresh: keep the current cards
         const grid = document.getElementById("doctorsGrid");
         if (grid) {
             grid.innerHTML = `
@@ -1602,20 +1893,29 @@ function renderDoctorsGrid() {
 
     grid.innerHTML = DOCTORS_DATA.map(doc => {
         const daysHtml = doc.availableDays.map(day => `
-            <span class="slot-pill"><i class="fa-solid fa-calendar-day"></i> ${day}</span>
+            <span class="slot-pill"><i class="fa-solid fa-calendar-day"></i> ${escHtml(day)}</span>
         `).join("");
+
+        // Profile picture uploaded from the clinics dashboard (icon as fallback)
+        const avatarInner = doc.avatarUrl
+            ? `<img src="${escHtml(doc.avatarUrl)}" alt="${escHtml(doc.name)}" loading="lazy" style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;">`
+            : `<i class="fa-solid ${escHtml(doc.avatarIcon)}"></i>`;
+
+        const followupHtml = doc.followupFee > 0
+            ? `<span style="margin-top:0.3rem;">إعادة الكشف: <strong style="font-size:0.95rem;">${doc.followupFee.toFixed(0)} ج.م</strong></span>`
+            : "";
 
         return `
             <div class="doctor-card">
                 <div class="doctor-card-top">
-                    <div class="doctor-avatar">
-                        <i class="fa-solid ${doc.avatarIcon}"></i>
+                    <div class="doctor-avatar" style="overflow:hidden;">
+                        ${avatarInner}
                     </div>
                     <div class="doctor-meta">
-                        <span class="doc-specialty-badge">${doc.specialty}</span>
-                        <h4 class="doc-name">${doc.name}</h4>
-                        <p class="doc-title">${doc.title}</p>
-                        <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> ${doc.branchName || "غير محدد"}</span>
+                        <span class="doc-specialty-badge">${escHtml(doc.specialty)}</span>
+                        <h4 class="doc-name">${escHtml(doc.name)}</h4>
+                        <p class="doc-title">${escHtml(doc.title)}</p>
+                        <span class="doc-branch"><i class="fa-solid fa-location-dot"></i> ${escHtml(doc.branchName) || "غير محدد"}</span>
                     </div>
                 </div>
                 <div class="doctor-schedule-box">
@@ -1628,6 +1928,7 @@ function renderDoctorsGrid() {
                     <div class="doc-fee">
                         <span>قيمة الكشف:</span>
                         <strong>${doc.fee.toFixed(0)} ج.م</strong>
+                        ${followupHtml}
                     </div>
                     <button type="button" class="btn btn-primary btn-sm" onclick="selectDoctorForBooking('${doc.id}')">
                         <i class="fa-solid fa-calendar-check"></i> احجز هذا الموعد
@@ -1636,6 +1937,66 @@ function renderDoctorsGrid() {
             </div>
         `;
     }).join("");
+}
+
+/** Escapes text coming from the database before it goes into innerHTML. */
+function escHtml(value) {
+    return String(value == null ? "" : value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+/**
+ * Re-reads clinic branches + doctors and updates the cards without resetting
+ * what the visitor already chose in the booking form.
+ */
+async function refreshDoctorsLive() {
+    try {
+        const branchSelect = document.getElementById("clinicBranchInput");
+        const prevBranch = branchSelect ? branchSelect.value : "";
+
+        const ok = await loadClinicBranches(true);
+        if (ok) {
+            populateClinicBranchOptions();
+            if (branchSelect && prevBranch && Array.from(branchSelect.options).some(o => o.value === prevBranch)) {
+                branchSelect.value = prevBranch;
+            }
+        }
+        await loadDoctorsDirectory(true);
+    } catch (e) {
+        console.warn("Live doctors refresh failed:", e);
+    }
+}
+
+/**
+ * Anything changed in the clinics dashboard (doctor photo, bio, fees, days,
+ * activate/deactivate, branch name...) shows up here without a page reload:
+ * Supabase Realtime pushes the change, plus a light safety-net refresh
+ * (realtime can't announce a row that just became hidden by RLS, e.g. a
+ * doctor who was deactivated).
+ */
+function setupRealtimeDoctors() {
+    let timer = null;
+    const schedule = () => {
+        clearTimeout(timer);
+        timer = setTimeout(refreshDoctorsLive, 400);
+    };
+
+    try {
+        supabaseClient
+            .channel("realtime-clinic-doctors-sync")
+            .on("postgres_changes", { event: "*", schema: "public", table: "doctors" }, schedule)
+            .on("postgres_changes", { event: "*", schema: "public", table: "clinic_branches" }, schedule)
+            .subscribe();
+    } catch (e) {
+        console.warn("Could not subscribe to doctors realtime changes:", e);
+    }
+
+    setInterval(() => { if (!document.hidden) refreshDoctorsLive(); }, 120000);
+    document.addEventListener("visibilitychange", () => { if (!document.hidden) refreshDoctorsLive(); });
 }
 
 function switchConsultationMode(mode) {
@@ -1942,6 +2303,20 @@ function handleConsultationSubmit(event) {
 // --------------------------------------------------------------------------
 let LIVE_BRANCHES = [];
 
+const CITY_NAME_AR = {
+    cairo: "القاهرة",
+    giza: "الجيزة",
+    alexandria: "الإسكندرية",
+    dakahlia: "الدقهلية",
+    mansoura: "المنصورة"
+};
+
+function formatCityName(rawCity) {
+    if (!rawCity) return "عام";
+    const lower = String(rawCity).trim().toLowerCase();
+    return CITY_NAME_AR[lower] || rawCity.trim();
+}
+
 async function loadLiveBranches() {
     try {
         const { data, error } = await supabaseClient
@@ -1966,7 +2341,7 @@ function renderBranchTabs() {
     const tabsContainer = document.getElementById("branchTabs");
     if (!tabsContainer) return;
 
-    const cities = [...new Set(LIVE_BRANCHES.map(b => b.city))];
+    const cities = [...new Set(LIVE_BRANCHES.map(b => formatCityName(b.city)).filter(Boolean))];
 
     if (cities.length === 0) {
         tabsContainer.innerHTML = "";
@@ -1982,6 +2357,7 @@ function renderBranchTabs() {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className = "branch-tab-btn" + (index === 0 ? " active" : "");
+        btn.setAttribute("data-city", city);
         btn.textContent = `فروع ${city}`;
         btn.addEventListener("click", () => renderBranchesForCity(city));
         tabsContainer.appendChild(btn);
@@ -1995,19 +2371,27 @@ function renderBranchesForCity(city) {
     const buttons = document.querySelectorAll("#branchTabs .branch-tab-btn");
 
     buttons.forEach(btn => {
-        btn.classList.toggle("active", btn.textContent === `فروع ${city}`);
+        btn.classList.toggle("active", btn.getAttribute("data-city") === city || btn.textContent === `فروع ${city}`);
     });
 
-    const branches = LIVE_BRANCHES.filter(b => b.city === city);
+    const branches = LIVE_BRANCHES.filter(b => formatCityName(b.city) === city);
 
     if (!branchesContainer) return;
 
+    if (branches.length === 0) {
+        branchesContainer.innerHTML = `<p style="color: var(--text-muted);">لا توجد فروع مسجلة في ${city} حالياً.</p>`;
+        return;
+    }
+
     branchesContainer.innerHTML = branches.map(b => `
         <div class="branch-item-card">
-            <h4><i class="fa-solid fa-hospital" style="color: var(--primary); margin-left: 0.4rem;"></i> ${b.name_ar}</h4>
+            <h4>
+                <i class="fa-solid fa-hospital" style="color: var(--primary); margin-left: 0.4rem;"></i> ${b.name_ar}
+                <span class="branch-gov-badge" style="background: rgba(16, 185, 129, 0.12); color: var(--primary); font-size: 0.78rem; padding: 2px 8px; border-radius: 6px; font-weight: 600; margin-right: 0.5rem;"><i class="fa-solid fa-location-dot"></i> ${formatCityName(b.city)}</span>
+            </h4>
             <p><i class="fa-solid fa-location-dot" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>العنوان:</strong> ${b.address || "غير محدد"}</p>
             <p><i class="fa-solid fa-phone" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>التليفون:</strong> ${b.phone || "غير محدد"} | <a href="tel:${b.phone || ''}" style="color: var(--primary); font-weight: bold;">اتصال مباشر</a></p>
-            <p><i class="fa-solid fa-clock" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>المواعيد:</strong> ${b.hours || "غير محدد"}</p>
+            <p><i class="fa-solid fa-clock" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>المواعيد:</strong> ${b.hours || "24 ساعة يومياً (خدمة التوصيل متاحة)"}</p>
             <p><i class="fa-solid fa-user-doctor" style="color: var(--text-muted); margin-left: 0.4rem;"></i> <strong>مدير الفرع:</strong> ${b.manager || "غير محدد"}</p>
         </div>
     `).join("");
@@ -2022,7 +2406,7 @@ function populatePickupBranchSelects() {
     if (selects.length === 0) return;
 
     const optionsHtml = LIVE_BRANCHES
-        .map(b => `<option value="${b.id}">${b.name_ar}</option>`)
+        .map(b => `<option value="${b.id}">${b.name_ar} (${formatCityName(b.city)})</option>`)
         .join("");
 
     selects.forEach(select => {
@@ -2050,12 +2434,12 @@ function renderDistributionMap() {
         return `
             <div class="map-pin pin-mansoura" style="top: ${top}; right: ${right};" title="${b.name_ar}">
                 <i class="fa-solid fa-hospital"></i>
-                <span>${b.name_ar} (${b.city})</span>
+                <span>${b.name_ar} (${formatCityName(b.city)})</span>
             </div>
         `;
     }).join("");
 
-    const cities = [...new Set(LIVE_BRANCHES.map(b => b.city))].join(" و");
+    const cities = [...new Set(LIVE_BRANCHES.map(b => formatCityName(b.city)))].join(" و");
 
     mapContainer.innerHTML = pinsHtml + `
         <div class="map-overlay-text">

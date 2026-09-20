@@ -3384,6 +3384,36 @@ body.dark-mode .cat-pill i {
     background-color: var(--bg-surface);
 }
 
+.cart-delivery-info {
+    margin-bottom: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    background: var(--bg-muted, #f8fafc);
+    border-radius: 8px;
+    font-size: 0.85rem;
+}
+
+.cart-delivery-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.25rem 0;
+    color: var(--text-secondary, #64748b);
+}
+
+.cart-delivery-row span:last-child {
+    font-weight: 600;
+    color: var(--text-primary, #1e293b);
+}
+
+.cart-free-delivery {
+    color: var(--success, #16a34a);
+}
+
+.cart-free-delivery span:last-child {
+    color: var(--success, #16a34a);
+    font-weight: 700;
+}
+
 .cart-total-row {
     display: flex;
     justify-content: space-between;
