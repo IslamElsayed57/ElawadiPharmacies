@@ -1,0 +1,33 @@
+Schema SQL/
+├── schema.sql                                (المخطط الهيكلي الأساسي الموحد للصيدليات)
+├── 00_audit_current_policies.sql             (ملف استعلام الفحص الدوري للصلاحيات)
+├── 01_clinic_tables_require_clinic_profile.sql (إصلاح F1, F2, F3)
+├── 02_doctor_row_level_scoping.sql           (إصلاح F4)
+├── 03_order_totals_server_verified.sql       (إصلاح F5)
+├── 04_order_items_insert_restricted.sql      (إصلاح F6)
+├── 05_order_status_history_branch_scoped.sql (إصلاح F7)
+├── 06_prescriptions_storage_branch_scoped.sql (إصلاح F8)
+├── 07_product_images_admin_only.sql          (إصلاح F9)
+├── 08_rate_limiting.sql                      (إصلاح F10)
+└── 09_auth_js_diff.md                        (توثيق تعديلات الـ Frontend F11)
+
+........................................................................................................................................
+كدة اقدر اغير الباسوورد
+const { data, error } =
+  await supabase.auth.admin.updateUserById(
+    "USER_UID",
+    {
+      password: "NewPassword123!"
+    }
+  );
+
+........................................................................................................................................
+وكدة اقدر اغير اليوزر 
+const { data, error } =
+  await supabase.auth.admin.updateUserById(
+    "USER_UID",
+    {
+      email: "newemail@example.com"
+    }
+  );
+.........................................................................................................................................
