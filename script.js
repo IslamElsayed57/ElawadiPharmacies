@@ -1103,9 +1103,10 @@ async function handleMedicineOrderSubmit(event) {
         return;
     }
 
-    // Generate order tracking number
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const trackingCode = `AWD-EGY-${randomNum}`;
+    // Tracking number, subtotal, delivery fee and total now all come back
+    // from the create_order() database function after it succeeds — the
+    // browser no longer generates or sends any of these itself.
+    let trackingCode = "";
 
     // Prepare delivery information
     let deliveryText = "";
@@ -1193,35 +1194,32 @@ async function handleMedicineOrderSubmit(event) {
             }
         }
 
-        // Pricing: subtotal comes from actual cart line items (real product
-        // prices), delivery_fee only applies for delivery orders and comes
-        // live from Supabase settings, total is their sum.
-        const subtotal = state.cart.reduce(
-            (sum, item) => sum + item.price * item.quantity, 0
-        );
-        const deliveryFeeValue = deliveryMethod === "delivery" ? calculateDeliveryFee(subtotal) : 0;
-        const total = subtotal + deliveryFeeValue;
+        // Cart line items sent as {product_id, quantity} only — no prices.
+        // The database computes subtotal from the real, current product
+        // prices (and the delivery fee from live settings), so nothing
+        // price-related the browser sends can be tampered with.
+        const cartItems = state.cart.map(item => ({
+            product_id: item.id,
+            quantity: item.quantity
+        }));
 
-        // Send order to Supabase
-        const { error } = await supabaseClient
-            .from("orders")
-            .insert({
-                customer_name: name,
-                phone: phone,
-                medications: medicines,
-                delivery_method: deliveryText,
-                address: addressText,
-                notes: notes,
-                prescription_url: prescriptionUrl,
-                status: "new",
-                tracking_code: trackingCode,
-                branch_id: selectedBranchId,
-                order_type: deliveryMethod === "delivery" ? "delivery" : "pickup",
-                subtotal: subtotal,
-                delivery_fee: deliveryFeeValue,
-                total: total
-            });
-            
+        // Call the create_order database function instead of inserting
+        // into `orders` directly.
+        const { data: orderResult, error } = await supabaseClient.rpc(
+            "create_order",
+            {
+                p_customer_name: name,
+                p_phone: phone,
+                p_order_type: deliveryMethod === "delivery" ? "delivery" : "pickup",
+                p_branch_id: selectedBranchId,
+                p_address: addressText,
+                p_notes: notes,
+                p_prescription_url: prescriptionUrl,
+                p_medications_text: medicines,
+                p_items: cartItems
+            }
+        );
+
         // Check for database error
         if (error) {
             console.error("Supabase order error:", error);
@@ -1233,6 +1231,15 @@ async function handleMedicineOrderSubmit(event) {
 
             return;
         }
+
+        // create_order() returns an array with one row: order_id,
+        // tracking_code, subtotal, delivery_fee, total — all computed
+        // server-side from real data.
+        const orderRow = Array.isArray(orderResult) ? orderResult[0] : orderResult;
+        trackingCode = orderRow.tracking_code;
+        const subtotal = Number(orderRow.subtotal);
+        const deliveryFeeValue = Number(orderRow.delivery_fee);
+        const total = Number(orderRow.total);
 
         console.log("Order successfully created:", trackingCode);
 
@@ -1495,9 +1502,9 @@ async function handleQuickRxModalSubmit(event) {
         return;
     }
 
-    // Generate tracking number
-    const randomNum = Math.floor(10000 + Math.random() * 90000);
-    const trackingCode = `AWD-RX-${randomNum}`;
+    // Tracking number now comes back from the create_order() database
+    // function after it succeeds.
+    let trackingCode = "";
 
     // Delivery information
     let deliveryDescription = "";
@@ -1580,29 +1587,23 @@ async function handleQuickRxModalSubmit(event) {
             }
         }
 
-        // Delivery fee applies only for delivery orders; this quick-order
-        // modal has no priced cart items, so subtotal stays 0.
-        const modalDeliveryFee = method === "delivery" ? calculateDeliveryFee(0) : 0;
-
-        // Send order to Supabase
-        const { error } = await supabaseClient
-            .from("orders")
-            .insert({
-                customer_name: name,
-                phone: phone,
-                medications: medicines,
-                delivery_method: deliveryDescription,
-                address: address,
-                notes: modalNotes,
-                prescription_url: prescriptionUrl,
-                status: "new",
-                tracking_code: trackingCode,
-                branch_id: selectedBranchId,
-                order_type: method === "delivery" ? "delivery" : "pickup",
-                subtotal: 0,
-                delivery_fee: modalDeliveryFee,
-                total: modalDeliveryFee
-            });
+        // This quick-order flow has no priced cart items (empty items
+        // array), so the database always sets subtotal to 0. The delivery
+        // fee is still computed server-side from live settings.
+        const { data: orderResult, error } = await supabaseClient.rpc(
+            "create_order",
+            {
+                p_customer_name: name,
+                p_phone: phone,
+                p_order_type: method === "delivery" ? "delivery" : "pickup",
+                p_branch_id: selectedBranchId,
+                p_address: address,
+                p_notes: modalNotes,
+                p_prescription_url: prescriptionUrl,
+                p_medications_text: medicines,
+                p_items: []
+            }
+        );
 
         // Database error
         if (error) {
@@ -1616,6 +1617,10 @@ async function handleQuickRxModalSubmit(event) {
 
             return;
         }
+
+        const orderRow = Array.isArray(orderResult) ? orderResult[0] : orderResult;
+        trackingCode = orderRow.tracking_code;
+        const modalDeliveryFee = Number(orderRow.delivery_fee);
 
         // SUCCESS
         console.log(
